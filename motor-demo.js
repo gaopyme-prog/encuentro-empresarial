@@ -321,6 +321,32 @@ function accionBorrarMensaje(p) {
   });
 }
 
+
+/* ---------- restablecer clave (docente / dueño de la hoja) ---------- */
+function claveTemporal() {
+  var ab = 'abcdefghjkmnpqrstuvwxyz23456789', c = '';
+  for (var i = 0; i < 6; i++) c += ab.charAt(Math.floor(Math.random() * ab.length));
+  return c;
+}
+
+function restablecerClaveDe(u) {
+  var ced = limpiarCedula(u.cedula), t = claveTemporal();
+  BD.actualizar(HOJAS.USUARIOS, u._fila, { clave_hash: hashClave(ced, t), cambiar_clave: 'SI' });
+  PLAT.cachePut('intentos_' + ced, '0', 1); // también quita el bloqueo por intentos fallidos
+  return t;
+}
+
+function accionRestablecer(p) {
+  return PLAT.conBloqueo(function () {
+    var u = usuarioSesion(p);
+    if (s(u.rol).toUpperCase() !== 'DOCENTE') falla('Solo el docente puede restablecer claves.');
+    var x = buscarUsuario(limpiarCedula(p.cedula));
+    if (!x) falla('Ese usuario no está registrado.');
+    if (s(x.rol).toUpperCase() === 'DOCENTE') falla('Tu propia clave se restablece desde la hoja de Google (menú III Encuentro).');
+    return { nombre: s(x.nombre), temporal: restablecerClaveDe(x) };
+  });
+}
+
 function despachar(p) {
   p = p || {};
   switch (s(p.accion)) {
@@ -331,6 +357,7 @@ function despachar(p) {
     case 'mensajes': return accionMensajes(p);
     case 'publicar': return accionPublicar(p);
     case 'borrarMensaje': return accionBorrarMensaje(p);
+    case 'restablecerClave': return accionRestablecer(p);
     default: falla('Acción no reconocida.');
   }
 }
@@ -365,7 +392,7 @@ function datosIniciales(demo) {
     ['I01', 'INDIVIDUAL', '', 'Ver el video de instrucciones', 'Mira completo el video de la portada y lee el plan de trabajo y responsabilidades.', '2026-11-07'],
     ['I02', 'INDIVIDUAL', '', 'Entregar la invitación a mi empresario', 'Entrega la invitación personalizada (impresa o por correo) a tu empresario o asesor externo.', '2026-11-09'],
     ['I03', 'INDIVIDUAL', '', 'Solicitar el certificado de práctica', 'Entrega a tu empresario la carta de solicitud del certificado de práctica. Plazo de entrega del certificado: 18 de noviembre.', '2026-11-09'],
-    ['I04', 'INDIVIDUAL', '', 'Preparar diapositivas y guion de mi presentación', 'Usa la plantilla y el guion de presentación. Tu exposición debe mostrar el diagnóstico, el plan de trabajo y los resultados en la empresa.', '2026-11-10'],
+    ['I04', 'INDIVIDUAL', '', 'Preparar diapositivas y guion de mi presentación', 'Usa el guion de presentación. Tu exposición debe mostrar el diagnóstico, el plan de trabajo y los resultados en la empresa.', '2026-11-10'],
     ['I05', 'INDIVIDUAL', '', 'Grabar mi presentación en el estudio', 'Grabación en off en el estudio de la Escuela de Ciencias Sociales y de las Comunicaciones, martes 10 de noviembre.', '2026-11-10'],
     ['I06', 'INDIVIDUAL', '', 'Participar en el primer ensayo', 'Presenta tu exposición y recibe retroalimentación.', '2026-11-11'],
     ['I07', 'INDIVIDUAL', '', 'Entregar la presentación final', 'Envía al docente la versión final ya corregida.', '2026-11-12'],
@@ -405,19 +432,14 @@ function datosIniciales(demo) {
   });
 
   var d = [
-    ['Plan de trabajo y responsabilidades', 'Qué hace cada comisión, fechas y entregables.', 'Planeación'],
-    ['Checklist de actividades', 'Lista para verificar que todo esté listo.', 'Planeación'],
-    ['Invitación al empresario', 'Modelo de invitación personalizada.', 'Cartas'],
     ['Solicitud de certificado de práctica', 'Carta para pedir el certificado a tu empresario.', 'Cartas'],
     ['Carta de solicitud de patrocinio en especie', 'Modelo para pedir aportes a empresas.', 'Cartas'],
     ['Carta de agradecimiento al empresario', 'Para enviar después del evento.', 'Cartas'],
     ['Guion de la presentación', 'Estructura y tiempos de tu exposición.', 'Presentación'],
-    ['Plantilla de diapositivas', 'Formato común para todas las presentaciones.', 'Presentación'],
-    ['Invitación gráfica del evento', 'Pieza para compartir por WhatsApp y redes.', 'Difusión'],
     ['Planilla de registro de asistentes', 'Para la mesa de registro.', 'Logística'],
     ['Cuadro de ingresos y gastos', 'Control de aportes, ventas y compras.', 'Logística']
   ];
-  var docs = d.map(function (x, i) { return { orden: i + 1, titulo: x[0], descripcion: x[1], enlace: demo && i < 4 ? 'https://drive.google.com/' : '', categoria: x[2] }; });
+  var docs = d.map(function (x, i) { return { orden: i + 1, titulo: x[0], descripcion: x[1], enlace: demo && i < 3 ? 'https://drive.google.com/' : '', categoria: x[2] }; });
 
   var conf = [
     ['titulo_evento', 'III Encuentro Empresarial', 'Nombre del evento'],
