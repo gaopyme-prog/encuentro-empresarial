@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B2A6B">
+<meta name="description" content="Espacio de trabajo del III Encuentro Empresarial · Consultorio Empresarial · ANI · UNIPAZ">
+<title>III Encuentro Empresarial · ANI UNIPAZ</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236C3CE1'/%3E%3Cstop offset='1' stop-color='%23E83E8C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial' font-weight='800' font-size='26' text-anchor='middle' fill='white'%3EIII%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B2A6B; --violeta:#6C3CE1; --magenta:#E83E8C; --naranja:#FF8A00; --amarillo:#FFC93C;
+  --turquesa:#00C2A8; --rojo:#EF4444; --verde:#16A34A;
+  --fondo:#F5F3FF; --tarjeta:#FFFFFF; --texto:#1E1B4B; --suave:#6B6895; --linea:#E7E3FA;
+  --grad:linear-gradient(135deg,#1B2A6B 0%,#6C3CE1 55%,#E83E8C 100%);
+  --sombra:0 10px 30px -12px rgba(48,25,140,.28);
+  --radio:20px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fondo);color:var(--texto);-webkit-font-smoothing:antialiased;font-size:15.5px;line-height:1.45}
+h1,h2,h3,.titulo{font-family:Poppins,Inter,sans-serif;letter-spacing:-.01em}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--violeta)}
+.oculto{display:none!important}
+:focus-visible{outline:3px solid var(--amarillo);outline-offset:2px;border-radius:8px}
+
+/* ---------- ingreso ---------- */
+.pantalla-ingreso{min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--grad);position:relative;overflow:hidden}
+.pantalla-ingreso::before,.pantalla-ingreso::after{content:"";position:absolute;border-radius:50%;filter:blur(2px);opacity:.35}
+.pantalla-ingreso::before{width:420px;height:420px;background:var(--amarillo);top:-160px;right:-120px}
+.pantalla-ingreso::after{width:320px;height:320px;background:var(--turquesa);bottom:-140px;left:-100px}
+.caja-ingreso{position:relative;z-index:1;width:100%;max-width:420px;background:#fff;border-radius:28px;padding:30px 26px;box-shadow:0 30px 60px -20px rgba(0,0,0,.45)}
+.marca{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.marca-logo{width:52px;height:52px;border-radius:16px;background:var(--grad);display:grid;place-items:center;color:#fff;font:800 20px Poppins,sans-serif;flex:none}
+.marca h1{font-size:22px;margin:0;line-height:1.15}
+.marca small{color:var(--suave);font-weight:600;font-size:12.5px}
+.caja-ingreso p.intro{color:var(--suave);margin:14px 0 18px}
+.campo{display:block;margin-bottom:14px}
+.campo span{display:block;font-weight:600;font-size:13.5px;margin-bottom:6px}
+.campo input{width:100%;padding:13px 14px;border:2px solid var(--linea);border-radius:14px;background:#FBFAFF;outline:none;transition:border .15s}
+.campo input:focus{border-color:var(--violeta);background:#fff}
+.boton{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:13px 18px;font-weight:700;font-family:Poppins,sans-serif;background:var(--grad);color:#fff;box-shadow:0 8px 20px -8px rgba(108,60,225,.7);transition:transform .1s,filter .15s}
+.boton:hover{filter:brightness(1.07)} .boton:active{transform:scale(.98)}
+.boton[disabled]{opacity:.6;cursor:wait}
+.boton.ancho{width:100%}
+.boton.claro{background:#fff;color:var(--violeta);box-shadow:none;border:2px solid var(--linea)}
+.boton.pequeno{padding:8px 12px;font-size:13px;border-radius:11px}
+.error{background:#FEE2E2;color:#991B1B;border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+.demo-aviso{margin-top:18px;background:#FFF7E0;border:2px dashed var(--amarillo);border-radius:14px;padding:12px;font-size:13px;color:#6B4E00}
+.demo-aviso b{display:block;margin-bottom:4px}
+.demo-aviso code{background:#fff;padding:1px 6px;border-radius:6px}
+
+/* ---------- estructura ---------- */
+.cabecera{background:var(--grad);color:#fff;padding:14px 18px 64px;position:relative}
+.cabecera-fila{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.cabecera .marca-logo{width:42px;height:42px;font-size:16px;border-radius:13px;background:rgba(255,255,255,.18);backdrop-filter:blur(4px)}
+.cabecera-titulo{flex:1;min-width:0}
+.cabecera-titulo b{display:block;font-family:Poppins,sans-serif;font-size:16.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cabecera-titulo small{opacity:.85;font-size:12.5px}
+.usuario-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);padding:5px 6px 5px 12px;border-radius:999px;font-size:13px;font-weight:600}
+.usuario-chip .nombre-corto{max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icono-boton{width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.22);color:#fff;display:grid;place-items:center}
+.icono-boton:hover{background:rgba(255,255,255,.35)}
+.pestanas{max-width:1100px;margin:16px auto 0;display:flex;gap:8px}
+.pestana{border:0;background:rgba(255,255,255,.14);color:#fff;padding:9px 16px;border-radius:999px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:7px;position:relative}
+.pestana[aria-selected=true]{background:#fff;color:var(--navy)}
+.globo{position:absolute;top:-4px;right:-4px;background:var(--amarillo);color:#3b2a00;font-size:11px;font-weight:800;border-radius:999px;min-width:19px;height:19px;display:grid;place-items:center;padding:0 5px}
+main{max-width:1100px;margin:-46px auto 0;padding:0 16px 110px;position:relative}
+.seccion{animation:entrar .25s ease}
+@keyframes entrar{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.tarjeta{background:var(--tarjeta);border-radius:var(--radio);box-shadow:var(--sombra);padding:20px;margin-bottom:16px}
+.tarjeta h2{font-size:18px;margin:0 0 4px}
+.tarjeta .sub{color:var(--suave);font-size:14px;margin:0 0 14px}
+.rejilla{display:grid;gap:16px}
+.r2{grid-template-columns:1.35fr 1fr}
+.navegacion-movil{display:none}
+
+/* ---------- barra de cumplimiento ---------- */
+.barra-cumplimiento{background:#fff;border-radius:var(--radio);box-shadow:var(--sombra);padding:18px 20px}
+.barra-top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px}
+.barra-top .pct{font:800 40px/1 Poppins,sans-serif;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.barra-top .etq{font-weight:700;font-family:Poppins,sans-serif}
+.barra-top .det{color:var(--suave);font-size:13.5px}
+.pista{height:22px;border-radius:999px;background:#EEEAFE;overflow:hidden;position:relative}
+.relleno{height:100%;border-radius:999px;background:linear-gradient(90deg,#FF5F6D 0%,#FF8A00 30%,#FFC93C 55%,#7BDB6E 78%,#00C2A8 100%);transition:width .6s cubic-bezier(.2,.9,.3,1.2);position:relative;min-width:0}
+.relleno::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.22) 0 10px,transparent 10px 20px);animation:rayas 1.2s linear infinite}
+@keyframes rayas{to{background-position:28px 0}}
+.hitos{display:flex;justify-content:space-between;margin-top:8px;font-size:11.5px;color:var(--suave);font-weight:600}
+.hitos span.ok{color:var(--verde)}
+.mensaje-barra{margin-top:10px;font-size:14px;font-weight:600}
+
+/* ---------- inicio ---------- */
+.bienvenida h2{font-size:22px}
+.cuenta{display:flex;gap:10px;margin:14px 0 4px}
+.cuenta div{flex:1;background:var(--fondo);border-radius:16px;padding:10px;text-align:center}
+.cuenta b{display:block;font:800 26px/1.1 Poppins,sans-serif;color:var(--violeta)}
+.cuenta small{color:var(--suave);font-weight:600;font-size:12px}
+.datos-evento{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--fondo);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.video{position:relative;padding-top:56.25%;border-radius:16px;overflow:hidden;background:#0f0b2a}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-vacio{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#fff;padding:20px;background:radial-gradient(circle at 30% 30%,#6C3CE1,#1B2A6B)}
+.video-vacio .play{width:66px;height:66px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;margin:0 auto 10px;font-size:26px}
+.proximas li{list-style:none;display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linea)}
+.proximas li:last-child{border:0}
+.proximas{padding:0;margin:0}
+.punto{width:10px;height:10px;border-radius:50%;flex:none}
+.comision-card{border-radius:16px;padding:14px;color:#fff;margin-top:6px}
+.comision-card b{font-family:Poppins,sans-serif;font-size:17px}
+.comision-card ul{margin:8px 0 0;padding-left:18px;font-size:14px}
+
+/* ---------- responsabilidades ---------- */
+.pegajosa{position:sticky;top:8px;z-index:5;margin-bottom:16px}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.filtro{border:2px solid var(--linea);background:#fff;padding:7px 14px;border-radius:999px;font-weight:600;font-size:13.5px}
+.filtro[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}
+.grupo-titulo{display:flex;align-items:center;gap:10px;margin:22px 4px 10px}
+.grupo-titulo h3{margin:0;font-size:16.5px}
+.grupo-titulo .cuenta-g{font-size:12.5px;font-weight:700;background:#fff;border-radius:999px;padding:3px 10px;color:var(--suave)}
+.icono-grupo{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#fff;font-size:16px}
+.tarea{display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:18px;padding:14px 16px;margin-bottom:10px;box-shadow:0 4px 14px -8px rgba(48,25,140,.25);border-left:6px solid var(--c,#6C3CE1);transition:transform .15s,opacity .2s}
+.tarea.hecha{opacity:.78;background:linear-gradient(90deg,#ECFDF5,#fff 60%)}
+.tarea.hecha .t-tit{text-decoration:line-through;text-decoration-color:rgba(22,163,74,.5)}
+.check{flex:none;width:34px;height:34px;border-radius:11px;border:2.5px solid #CFC8F5;background:#fff;display:grid;place-items:center;transition:all .2s;margin-top:1px}
+.check svg{width:20px;height:20px;stroke:#fff;stroke-width:3.2;fill:none;opacity:0;transform:scale(.4);transition:all .2s}
+.tarea.hecha .check{background:var(--verde);border-color:var(--verde)}
+.tarea.hecha .check svg{opacity:1;transform:scale(1)}
+.check:hover{border-color:var(--violeta)}
+.t-cuerpo{flex:1;min-width:0}
+.t-tit{font-weight:700;font-size:15.5px;margin:0 0 3px}
+.t-desc{color:var(--suave);font-size:14px;margin:0}
+.t-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.etiqueta{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--fondo);color:var(--suave)}
+.etiqueta.vencida{background:#FEE2E2;color:#B91C1C}
+.etiqueta.hoy{background:#FFEDD5;color:#C2410C}
+.etiqueta.pronto{background:#FEF9C3;color:#854D0E}
+.etiqueta.lista{background:#DCFCE7;color:#166534}
+.vacio{text-align:center;color:var(--suave);padding:26px}
+
+/* ---------- documentos ---------- */
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.doc{background:#fff;border-radius:18px;padding:16px;box-shadow:0 4px 14px -8px rgba(48,25,140,.25);display:flex;flex-direction:column;gap:8px;border-top:6px solid var(--c)}
+.doc-icono{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:#fff;font-size:20px;background:var(--c)}
+.doc h3{margin:0;font-size:15.5px}
+.doc p{margin:0;color:var(--suave);font-size:13.5px;flex:1}
+.doc .boton{align-self:flex-start}
+.doc .no-disp{font-size:13px;font-weight:600;color:var(--suave);background:var(--fondo);border-radius:10px;padding:8px 12px;align-self:flex-start}
+
+/* ---------- muro ---------- */
+.muro{display:flex;flex-direction:column;height:calc(100vh - 210px);min-height:420px;padding:0;overflow:hidden}
+.avisos-fijos{padding:14px 16px 4px;border-bottom:1px solid var(--linea);background:linear-gradient(180deg,#FFF8E6,#fff)}
+.aviso{background:#fff;border:2px solid var(--amarillo);border-radius:14px;padding:10px 12px;margin-bottom:10px;font-size:14px}
+.aviso b{font-family:Poppins,sans-serif}
+.mensajes{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#FBFAFF}
+.msg{max-width:78%;align-self:flex-start;background:#fff;border-radius:18px 18px 18px 6px;padding:9px 13px;box-shadow:0 2px 8px -4px rgba(48,25,140,.25)}
+.msg.mio{align-self:flex-end;background:linear-gradient(135deg,#6C3CE1,#8B5CF6);color:#fff;border-radius:18px 18px 6px 18px}
+.msg.es-aviso{border:2px solid var(--amarillo)}
+.msg .autor{font-size:12px;font-weight:700;display:flex;gap:6px;align-items:center;margin-bottom:2px}
+.msg.mio .autor{color:#EDE9FE}
+.rol{font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:999px;background:var(--fondo);color:var(--violeta);text-transform:uppercase;letter-spacing:.03em}
+.rol.DOCENTE{background:#1B2A6B;color:#fff} .rol.COORDINADOR{background:var(--magenta);color:#fff}
+.msg .texto{white-space:pre-wrap;word-wrap:break-word;font-size:14.5px}
+.msg .texto a{color:inherit;text-decoration:underline}
+.msg .pie{font-size:11px;opacity:.7;margin-top:3px;display:flex;justify-content:space-between;gap:10px}
+.msg .borrar{background:none;border:0;font-size:11px;opacity:.75;padding:0;color:inherit;text-decoration:underline}
+.redactar{display:flex;gap:10px;padding:12px;border-top:1px solid var(--linea);background:#fff;align-items:flex-end}
+.redactar textarea{flex:1;resize:none;border:2px solid var(--linea);border-radius:14px;padding:10px 12px;min-height:46px;max-height:140px;outline:none}
+.redactar textarea:focus{border-color:var(--violeta)}
+.opcion-aviso{display:flex;gap:6px;align-items:center;font-size:12.5px;font-weight:600;color:var(--suave);padding:0 14px 10px;background:#fff}
+
+/* ---------- seguimiento ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.kpi{background:#fff;border-radius:18px;padding:16px;box-shadow:var(--sombra);position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;background:var(--c);opacity:.15}
+.kpi b{display:block;font:800 30px/1.1 Poppins,sans-serif;color:var(--c)}
+.kpi small{color:var(--suave);font-weight:600;font-size:12.5px}
+.comisiones-g{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.com{border-radius:16px;padding:14px;background:var(--fondo);border-left:6px solid var(--c)}
+.com b{font-family:Poppins,sans-serif}
+.com .mini{height:10px;background:#fff;border-radius:999px;overflow:hidden;margin:8px 0 6px}
+.com .mini div{height:100%;background:var(--c);border-radius:999px;transition:width .5s}
+.com small{color:var(--suave);font-size:12.5px}
+.herramientas{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.herramientas input,.herramientas select{border:2px solid var(--linea);border-radius:12px;padding:8px 12px;background:#fff;outline:none}
+.herramientas input{flex:1;min-width:180px}
+.tabla-est{width:100%;border-collapse:collapse}
+.tabla-est th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--suave);padding:8px;border-bottom:2px solid var(--linea)}
+.tabla-est td{padding:10px 8px;border-bottom:1px solid var(--linea);font-size:14px;vertical-align:middle}
+.tabla-est tr.fila{cursor:pointer} .tabla-est tr.fila:hover td{background:#FAF8FF}
+.mini-barra{display:flex;align-items:center;gap:8px;min-width:140px}
+.mini-barra .p{flex:1;height:10px;background:#EEEAFE;border-radius:999px;overflow:hidden}
+.mini-barra .p div{height:100%;border-radius:999px}
+.mini-barra b{font-size:13px;width:48px;text-align:right;white-space:nowrap}
+.pildora{display:inline-block;font-size:11.5px;font-weight:700;color:#fff;border-radius:999px;padding:2px 9px}
+.lista-tareas-stat li{list-style:none;display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--linea);font-size:14px}
+.lista-tareas-stat{padding:0;margin:0;max-height:420px;overflow:auto}
+.lista-tareas-stat .tt{flex:1}
+
+/* ---------- modal y avisos ---------- */
+.velo{position:fixed;inset:0;background:rgba(20,12,60,.55);display:grid;place-items:center;padding:16px;z-index:50;animation:entrar .2s}
+.modal{background:#fff;border-radius:24px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:22px}
+.modal h3{margin:0 0 2px;font-size:19px}
+.modal .cerrar{float:right}
+.tostada{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:14px;font-weight:600;font-size:14px;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);z-index:60;max-width:90vw;text-align:center;animation:entrar .2s}
+.tostada.mala{background:#B91C1C}
+.cargando{display:grid;place-items:center;padding:60px;color:var(--suave);font-weight:600}
+.rueda{width:36px;height:36px;border-radius:50%;border:4px solid #E4DEFC;border-top-color:var(--violeta);animation:girar 0.8s linear infinite;margin:0 auto 12px}
+@keyframes girar{to{transform:rotate(360deg)}}
+.franja-demo{background:var(--amarillo);color:#3b2a00;text-align:center;font-size:12.5px;font-weight:700;padding:5px 10px}
+.franja-demo button{background:none;border:0;text-decoration:underline;font-weight:700;padding:0 4px}
+#confeti{position:fixed;inset:0;pointer-events:none;z-index:70}
+
+/* ---------- pantallas pequeñas ---------- */
+@media (max-width:900px){
+  .r2{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .comisiones-g{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:700px){
+  body{font-size:15px}
+  .pestanas{display:none}
+  .cabecera{padding-bottom:58px}
+  main{margin-top:-40px;padding:0 12px 100px}
+  .navegacion-movil{display:flex;position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));background:#fff;border-radius:22px;box-shadow:0 14px 34px -10px rgba(27,42,107,.45);z-index:20;padding:6px}
+  .navegacion-movil button{flex:1;border:0;background:none;padding:7px 2px;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--suave);position:relative}
+  .navegacion-movil button .ico{font-size:20px;line-height:1}
+  .navegacion-movil button[aria-selected=true]{background:var(--grad);color:#fff}
+  .navegacion-movil .globo{right:18%;top:0}
+  .usuario-chip .nombre-corto{display:none}
+  .usuario-chip{padding:4px}
+  .barra-top .pct{font-size:34px}
+  .muro{height:calc(100vh - 190px)}
+  .msg{max-width:90%}
+  .comisiones-g{grid-template-columns:1fr}
+  .tabla-est thead{display:none}
+  .tabla-est tr.fila{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 4px;border-bottom:1px solid var(--linea)}
+  .tabla-est tr.fila td{border:0;padding:2px 4px}
+  .tabla-est td.c-com,.tabla-est td.c-ing{grid-column:1/-1;font-size:12.5px;color:var(--suave)}
+  .tabla-est td.c-barra{grid-column:1/-1}
+  .tabla-est td.c-venc{grid-row:1;grid-column:2}
+  .tabla-est td.c-venc .etiqueta::before{content:'Vencidas: '}
+  .tostada{bottom:96px}
+  .pegajosa .barra-cumplimiento{padding:12px 14px}
+  .pegajosa .hitos,.pegajosa .mensaje-barra{display:none}
+  .pegajosa .barra-top .pct{font-size:28px}
+  .pegajosa .pista{height:16px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ INGRESO ============ -->
+<section id="pIngreso" class="pantalla-ingreso oculto" aria-label="Ingreso">
+  <form class="caja-ingreso" id="formIngreso" autocomplete="on">
+    <div class="marca"><div class="marca-logo">III</div><div><h1>Encuentro Empresarial</h1><small>Consultorio Empresarial · ANI · UNIPAZ</small></div></div>
+    <p class="intro">Ingresa con tu número de cédula. La primera vez usa la clave que te dio el docente; luego crearás la tuya.</p>
+    <div id="errIngreso" class="error oculto" role="alert"></div>
+    <label class="campo"><span>Cédula</span><input id="inCedula" inputmode="numeric" autocomplete="username" placeholder="Ej.: 1096123456" required></label>
+    <label class="campo"><span>Clave</span><input id="inClave" type="password" autocomplete="current-password" placeholder="Tu clave" required></label>
+    <button class="boton ancho" id="btnIngresar" type="submit">Ingresar</button>
+    <div id="ayudaDemo" class="demo-aviso oculto">
+      <b>Modo demostración</b>
+      Los datos solo se guardan en este navegador. Prueba con la clave inicial <code>demo123</code>:<br>
+      Estudiante líder: <code>10001</code> (Karol) · Estudiante: <code>10002</code><br>
+      Docente: <code>20001</code> · Coordinación: <code>20002</code>
+    </div>
+  </form>
+</section>
+
+<!-- ============ CAMBIO DE CLAVE ============ -->
+<section id="pClave" class="pantalla-ingreso oculto" aria-label="Crear clave">
+  <form class="caja-ingreso" id="formClave">
+    <div class="marca"><div class="marca-logo">🔐</div><div><h1>Crea tu clave</h1><small id="saludoClave"></small></div></div>
+    <p class="intro">Es tu primer ingreso. Crea una clave personal de al menos 6 caracteres. No la compartas.</p>
+    <div id="errClave" class="error oculto" role="alert"></div>
+    <input type="text" id="inUsuarioOculto" autocomplete="username" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;height:0;width:0;pointer-events:none">
+    <label class="campo"><span>Nueva clave</span><input id="inNueva" type="password" autocomplete="new-password" minlength="6" required></label>
+    <label class="campo"><span>Repite la clave</span><input id="inNueva2" type="password" autocomplete="new-password" minlength="6" required></label>
+    <button class="boton ancho" id="btnClave" type="submit">Guardar y entrar</button>
+    <button class="boton claro ancho" type="button" id="btnCancelarClave" style="margin-top:10px">Volver</button>
+  </form>
+</section>
+
+<!-- ============ APLICACIÓN ============ -->
+<div id="pApp" class="oculto">
+  <div id="franjaDemo" class="franja-demo oculto">MODO DEMOSTRACIÓN: los cambios solo quedan en este navegador. <button id="btnReiniciarDemo" type="button">Reiniciar demo</button></div>
+  <header class="cabecera">
+    <div class="cabecera-fila">
+      <div class="marca-logo">III</div>
+      <div class="cabecera-titulo"><b id="hTitulo">III Encuentro Empresarial</b><small id="hSub">Consultorio Empresarial · ANI · UNIPAZ</small></div>
+      <div class="usuario-chip"><span class="nombre-corto" id="hUsuario"></span>
+        <button class="icono-boton" id="btnRefrescar" title="Actualizar" aria-label="Actualizar">⟳</button>
+        <button class="icono-boton" id="btnSalir" title="Salir" aria-label="Salir">⏻</button>
+      </div>
+    </div>
+    <nav class="pestanas" id="pestanas" role="tablist" aria-label="Secciones"></nav>
+  </header>
+  <main id="contenido"><div class="cargando"><div><div class="rueda"></div>Cargando…</div></div></main>
+  <nav class="navegacion-movil" id="navMovil" role="tablist" aria-label="Secciones"></nav>
+</div>
+
+<canvas id="confeti" class="oculto"></canvas>
+
+<script src="config.js"></script>
+<script src="motor-demo.js"></script>
+<script>
+(function () {
+'use strict';
+var CFG = window.CONFIG_ENCUENTRO || {};
+var API = (CFG.API_URL || '').trim();
+var DEMO = !API;
+var LLAVE_TOKEN = DEMO ? 'encuentro_token_demo' : 'encuentro_token';
+var estado = { token: leer(LLAVE_TOKEN), datos: null, seccion: null, filtro: 'todas', busqueda: '', filtroCom: '0', sondeo: null, cargandoMarcar: {} };
+
+/* ---------- utilidades ---------- */
+function $(id) { return document.getElementById(id); }
+function leer(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function guardar(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) { } }
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function enlaceSeguro(u) { u = String(u || '').trim(); return /^https?:\/\//i.test(u) ? u : ''; }
+function enlazar(t) { return esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'); }
+function mostrar(id) { ['pIngreso', 'pClave', 'pApp'].forEach(function (x) { $(x).classList.toggle('oculto', x !== id); }); }
+function fecha(d) { if (!d) return ''; var f = new Date(d + 'T12:00:00Z'); if (isNaN(f)) return d; return f.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); }
+function diasEntre(a, b) { return Math.round((new Date(b + 'T12:00:00Z') - new Date(a + 'T12:00:00Z')) / 86400000); }
+function primerNombre(n) { return String(n || '').split(' ')[0]; }
+function tostada(msg, mala) {
+  document.querySelectorAll('.tostada').forEach(function (x) { x.remove(); });
+  var t = document.createElement('div'); t.className = 'tostada' + (mala ? ' mala' : ''); t.setAttribute('role', 'status'); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(function () { t.remove(); }, 3200);
+}
+function equipo() { var r = estado.datos && estado.datos.usuario.rol; return r === 'DOCENTE' || r === 'COORDINADOR'; }
+
+/* ---------- conexión con el servidor ---------- */
+function api(accion, extra) {
+  var p = Object.assign({ accion: accion, token: estado.token }, extra || {});
+  var promesa;
+  if (DEMO) {
+    promesa = new Promise(function (ok) { setTimeout(function () { ok(window.MotorDemo.llamar(p)); }, 150); });
+  } else {
+    promesa = fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p), redirect: 'follow' })
+      .then(function (r) { if (!r.ok) throw new Error('red'); return r.json(); })
+      .catch(function () { return { ok: false, error: 'No hay conexión con el servidor. Revisa tu internet e intenta de nuevo.' }; });
+  }
+  return promesa.then(function (r) {
+    if (r.ok) return r.data;
+    if (r.codigo === 'SESION') { salir(true); }
+    if (r.codigo === 'CAMBIAR_CLAVE') { mostrar('pClave'); }
+    var e = new Error(r.error); e.codigo = r.codigo; throw e;
+  });
+}
+
+/* ---------- ingreso ---------- */
+$('formIngreso').addEventListener('submit', function (ev) {
+  ev.preventDefault();
+  var b = $('btnIngresar'); b.disabled = true; b.textContent = 'Ingresando…'; $('errIngreso').classList.add('oculto');
+  api('login', { cedula: $('inCedula').value, clave: $('inClave').value }).then(function (r) {
+    estado.token = r.token; guardar(LLAVE_TOKEN, r.token); $('inClave').value = ''; $('inUsuarioOculto').value = $('inCedula').value;
+    if (r.debeCambiar) { $('saludoClave').textContent = 'Hola, ' + primerNombre(r.nombre); mostrar('pClave'); $('inNueva').focus(); }
+    else iniciarApp();
+  }).catch(function (e) { $('errIngreso').textContent = e.message; $('errIngreso').classList.remove('oculto'); })
+    .then(function () { b.disabled = false; b.textContent = 'Ingresar'; });
+});
+$('formClave').addEventListener('submit', function (ev) {
+  ev.preventDefault();
+  var e = $('errClave'); e.classList.add('oculto');
+  if ($('inNueva').value !== $('inNueva2').value) { e.textContent = 'Las dos claves no coinciden.'; e.classList.remove('oculto'); return; }
+  var b = $('btnClave'); b.disabled = true;
+  api('cambiarClave', { nueva: $('inNueva').value }).then(function () {
+    $('inNueva').value = $('inNueva2').value = ''; tostada('¡Clave creada! Bienvenido(a).'); iniciarApp();
+  }).catch(function (x) { e.textContent = x.message; e.classList.remove('oculto'); }).then(function () { b.disabled = false; });
+});
+$('btnCancelarClave').addEventListener('click', function () { salir(); });
+$('btnSalir').addEventListener('click', function () { salir(); });
+$('btnRefrescar').addEventListener('click', function () { cargar(true); });
+$('btnReiniciarDemo').addEventListener('click', function () { if (confirm('¿Borrar los datos de la demostración y empezar de nuevo?')) { window.MotorDemo.reiniciar(); salir(); } });
+
+function salir(expirada) {
+  estado.token = null; estado.datos = null; estado.seccion = null; estado.filtro = 'todas'; estado.busqueda = ''; estado.filtroCom = '0';
+  guardar(LLAVE_TOKEN, null); detenerSondeo(); history.replaceState(null, '', location.pathname + location.search);
+  mostrar('pIngreso'); if (expirada) tostada('Tu sesión terminó. Ingresa de nuevo.', true);
+}
+
+/* ---------- arranque ---------- */
+function iniciarApp() {
+  mostrar('pApp'); $('franjaDemo').classList.toggle('oculto', !DEMO);
+  $('contenido').innerHTML = '<div class="cargando"><div><div class="rueda"></div>Cargando…</div></div>';
+  cargar(false);
+}
+function cargar(avisar) {
+  return api('datos').then(function (d) {
+    var antes = estado.datos;
+    estado.datos = d;
+    $('hTitulo').textContent = d.evento.titulo || 'III Encuentro Empresarial';
+    $('hSub').textContent = equipo() ? (d.usuario.rol === 'DOCENTE' ? 'Panel del docente' : 'Panel de coordinación') : (d.usuario.comisionNombre ? 'Comisión de ' + d.usuario.comisionNombre : 'Consultorio Empresarial');
+    $('hUsuario').textContent = d.usuario.nombre;
+    document.title = (d.evento.titulo || 'III Encuentro Empresarial') + ' · ANI UNIPAZ';
+    construirNavegacion();
+    var inicial = location.hash.replace('#', '');
+    if (!estado.seccion) estado.seccion = secciones().some(function (x) { return x.id === inicial; }) ? inicial : secciones()[0].id;
+    pintar();
+    if (avisar) tostada('Información actualizada');
+    if (!antes) iniciarSondeo();
+  }).catch(function (e) { if (e.codigo !== 'SESION' && e.codigo !== 'CAMBIAR_CLAVE') { $('contenido').innerHTML = '<div class="tarjeta vacio">' + esc(e.message) + '<br><br><button class="boton pequeno" onclick="location.reload()">Reintentar</button></div>'; } });
+}
+
+/* ---------- navegación ---------- */
+function secciones() {
+  if (equipo()) return [
+    { id: 'seguimiento', txt: 'Seguimiento', ico: '📊' }, { id: 'inicio', txt: 'Inicio', ico: '🏠' },
+    { id: 'documentos', txt: 'Documentos', ico: '📁' }, { id: 'muro', txt: 'Muro', ico: '💬' }];
+  return [
+    { id: 'inicio', txt: 'Inicio', ico: '🏠' }, { id: 'tareas', txt: 'Mis tareas', ico: '✅' },
+    { id: 'documentos', txt: 'Documentos', ico: '📁' }, { id: 'muro', txt: 'Muro', ico: '💬' }];
+}
+function construirNavegacion() {
+  var html = secciones().map(function (s) {
+    return '<button role="tab" data-s="' + s.id + '" aria-selected="' + (s.id === estado.seccion) + '"><span class="ico">' + s.ico + '</span><span>' + s.txt + '</span>' + (s.id === 'muro' ? '<span class="globo oculto" data-globo></span>' : '') + '</button>';
+  }).join('');
+  $('pestanas').innerHTML = html.replace(/<button /g, '<button class="pestana" ');
+  $('navMovil').innerHTML = html;
+  document.querySelectorAll('[data-s]').forEach(function (b) { b.addEventListener('click', function () { ir(b.getAttribute('data-s')); }); });
+  actualizarGlobo();
+}
+function ir(id) {
+  estado.seccion = id; history.replaceState(null, '', '#' + id);
+  document.querySelectorAll('[data-s]').forEach(function (b) { b.setAttribute('aria-selected', b.getAttribute('data-s') === id); });
+  pintar(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function pintar() {
+  var d = estado.datos; if (!d) return;
+  var f = { inicio: pintarInicio, tareas: pintarTareas, documentos: pintarDocumentos, muro: pintarMuro, seguimiento: pintarSeguimiento }[estado.seccion] || pintarInicio;
+  document.querySelectorAll('[data-s]').forEach(function (b) { b.setAttribute('aria-selected', b.getAttribute('data-s') === estado.seccion); });
+  f(d);
+  if (estado.seccion === 'muro') marcarMuroVisto();
+}
+
+/* ---------- barra de cumplimiento ---------- */
+function barraHTML(p) {
+  var pct = p.porcentaje || 0;
+  var frase = pct === 100 ? '🏆 ¡Cumpliste el 100 %! Excelente trabajo.' : pct >= 75 ? '🔥 Ya casi. Te falta muy poco.' : pct >= 50 ? '💪 Vas por buen camino: pasaste la mitad.' : pct >= 25 ? '🚀 Buen comienzo. Sigue marcando lo que cumplas.' : pct > 0 ? '✨ Ya arrancaste. Cada tarea cuenta.' : '👋 Empieza por el video y marca tu primera tarea.';
+  var hitos = [0, 25, 50, 75, 100].map(function (h) { return '<span class="' + (pct >= h ? 'ok' : '') + '">' + (pct >= h && h > 0 ? '✓ ' : '') + h + ' %</span>'; }).join('');
+  return '<div class="barra-cumplimiento" aria-label="Cumplimiento">' +
+    '<div class="barra-top"><div><div class="etq">Mi cumplimiento</div><div class="det">' + p.hechas + ' de ' + p.total + ' responsabilidades' + (p.vencidas ? ' · <b style="color:#B91C1C">' + p.vencidas + ' vencida' + (p.vencidas > 1 ? 's' : '') + '</b>' : '') + '</div></div><div class="pct" data-pct>' + pct + ' %</div></div>' +
+    '<div class="pista" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><div class="relleno" style="width:' + pct + '%;background-size:' + (pct ? (10000 / pct) : 100) + '% 100%"></div></div>' +
+    '<div class="hitos">' + hitos + '</div><div class="mensaje-barra">' + frase + '</div></div>';
+}
+
+/* ---------- INICIO ---------- */
+function videoHTML(url) {
+  var u = enlaceSeguro(url), src = '';
+  if (u) {
+    var m = u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{6,})/);
+    var g = u.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
+    if (m) src = 'https://www.youtube-nocookie.com/embed/' + m[1] + '?rel=0';
+    else if (g) src = 'https://drive.google.com/file/d/' + g[1] + '/preview';
+    else src = u;
+  }
+  return '<div class="video">' + (src ? '<iframe src="' + esc(src) + '" title="Video de instrucciones" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>' :
+    '<div class="video-vacio"><div><div class="play">▶</div><b>El video de instrucciones estará aquí</b><br><small>El docente lo publicará muy pronto.</small></div></div>') + '</div>';
+}
+function cuentaRegresiva(d) {
+  if (!d.evento.fecha) return '';
+  var dias = diasEntre(d.hoy, d.evento.fecha);
+  if (dias < 0) return '<div class="chip" style="margin-top:12px">✅ El evento ya se realizó. ¡Gracias por tu trabajo!</div>';
+  if (dias === 0) return '<div class="cuenta"><div><b>¡HOY!</b><small>es el III Encuentro Empresarial</small></div></div>';
+  return '<div class="cuenta"><div><b>' + dias + '</b><small>día' + (dias === 1 ? '' : 's') + ' para el evento</small></div><div><b>' + esc(new Date(d.evento.fecha + 'T12:00:00Z').toLocaleDateString('es-CO', { day: 'numeric', month: 'short', timeZone: 'UTC' }).replace('.', '')) + '</b><small>' + esc(d.evento.hora || '') + '</small></div></div>';
+}
+function pintarInicio(d) {
+  var u = d.usuario, html = '';
+  html += '<div class="rejilla r2">';
+  html += '<div><div class="tarjeta bienvenida"><h2>¡Hola, ' + esc(primerNombre(u.nombre)) + '! 👋</h2><p class="sub">' + esc(d.evento.bienvenida) + '</p>' + videoHTML(d.evento.video) + '</div></div>';
+  html += '<div>';
+  html += '<div class="tarjeta"><h2>' + esc(d.evento.titulo) + '</h2><p class="sub" style="margin:0">' + esc(d.evento.subtitulo) + '</p>' + cuentaRegresiva(d) +
+    '<div class="datos-evento">' + (d.evento.lugar ? '<span class="chip">📍 ' + esc(d.evento.lugar) + '</span>' : '') + (d.evento.hora ? '<span class="chip">🕗 ' + esc(d.evento.hora) + '</span>' : '') + '</div></div>';
+  if (!equipo()) {
+    html += barraHTML(d.progreso);
+    var pend = d.tareas.filter(function (t) { return !t.hecho; }).slice(0, 4);
+    html += '<div class="tarjeta" style="margin-top:16px"><h2>Lo próximo</h2>' + (pend.length ? '<ul class="proximas">' + pend.map(function (t) {
+      return '<li><span class="punto" style="background:' + (t.vencida ? 'var(--rojo)' : 'var(--violeta)') + '"></span><span style="flex:1">' + esc(t.titulo) + '</span>' + chipFecha(t, d.hoy) + '</li>';
+    }).join('') + '</ul><button class="boton pequeno" style="margin-top:12px" data-ir="tareas">Ver todas mis tareas</button>' : '<p class="sub">¡No tienes nada pendiente! 🎉</p>') + '</div>';
+    if (u.comision) {
+      html += '<div class="comision-card" style="background:' + esc(u.comisionColor || '#6C3CE1') + '"><small style="opacity:.9;font-weight:700">MI COMISIÓN</small><br><b>' + esc(u.comisionNombre) + '</b>' + (u.lider ? ' <span class="pildora" style="background:rgba(0,0,0,.25)">Eres líder</span>' : '') +
+        '<ul>' + d.companeros.map(function (c) { return '<li>' + esc(c.nombre) + (c.lider ? ' (líder)' : '') + '</li>'; }).join('') + '</ul>' + (u.empresa ? '<div style="margin-top:8px;font-size:13.5px">🏢 Mi empresa: <b>' + esc(u.empresa) + '</b></div>' : '') + '</div>';
+    }
+  } else {
+    var t = d.tablero;
+    html += '<div class="tarjeta"><h2>Avance general</h2>' + barraHTML({ porcentaje: t.general, hechas: t.completos, total: t.estudiantes.length, vencidas: 0 }).replace('Mi cumplimiento', 'Promedio del grupo').replace(/\d+ de \d+ responsabilidades/, t.completos + ' de ' + t.estudiantes.length + ' estudiantes al 100 %') + '<button class="boton pequeno" style="margin-top:12px" data-ir="seguimiento">Ir al seguimiento</button></div>';
+  }
+  html += '</div></div>';
+  $('contenido').innerHTML = '<div class="seccion">' + html + '</div>';
+  enlazarIr();
+}
+function enlazarIr() { document.querySelectorAll('[data-ir]').forEach(function (b) { b.addEventListener('click', function () { ir(b.getAttribute('data-ir')); }); }); }
+function chipFecha(t, hoy) {
+  if (t.hecho) return '<span class="etiqueta lista">✓ Cumplida</span>';
+  if (!t.fecha) return '';
+  var dd = diasEntre(hoy, t.fecha);
+  if (dd < 0) return '<span class="etiqueta vencida">Vencida · ' + esc(fecha(t.fecha)) + '</span>';
+  if (dd === 0) return '<span class="etiqueta hoy">Vence hoy</span>';
+  if (dd <= 2) return '<span class="etiqueta pronto">' + (dd === 1 ? 'Mañana' : 'En 2 días') + ' · ' + esc(fecha(t.fecha)) + '</span>';
+  return '<span class="etiqueta">📅 ' + esc(fecha(t.fecha)) + '</span>';
+}
+
+/* ---------- MIS TAREAS ---------- */
+function pintarTareas(d) {
+  var u = d.usuario;
+  var grupos = [
+    { tipo: 'INDIVIDUAL', titulo: 'Mis responsabilidades personales', ico: '👤', color: '#6C3CE1' },
+    { tipo: 'COMISION', titulo: 'Comisión de ' + (u.comisionNombre || '—'), ico: '👥', color: u.comisionColor || '#00C2A8', nota: 'Las marca cualquier integrante y cuentan para todos.' },
+    { tipo: 'LIDER', titulo: 'Como líder de comisión', ico: '⭐', color: '#FF8A00' }
+  ];
+  var filtros = [['todas', 'Todas'], ['pendientes', 'Pendientes'], ['cumplidas', 'Cumplidas']];
+  var html = '<div class="pegajosa" id="zonaBarra">' + barraHTML(d.progreso) + '</div>';
+  html += '<div class="filtros" role="group" aria-label="Filtrar">' + filtros.map(function (f) { return '<button class="filtro" data-f="' + f[0] + '" aria-pressed="' + (estado.filtro === f[0]) + '">' + f[1] + '</button>'; }).join('') + '</div>';
+  var alguna = false;
+  grupos.forEach(function (g) {
+    var todas = d.tareas.filter(function (t) { return t.tipo === g.tipo; });
+    if (!todas.length) return;
+    var lista = todas.filter(function (t) { return estado.filtro === 'todas' || (estado.filtro === 'cumplidas' ? t.hecho : !t.hecho); });
+    var hechas = todas.filter(function (t) { return t.hecho; }).length;
+    html += '<div class="grupo-titulo"><div class="icono-grupo" style="background:' + esc(g.color) + '">' + g.ico + '</div><div style="flex:1"><h3>' + esc(g.titulo) + '</h3>' + (g.nota ? '<small style="color:var(--suave)">' + g.nota + '</small>' : '') + '</div><span class="cuenta-g">' + hechas + '/' + todas.length + '</span></div>';
+    if (!lista.length) { html += '<div class="vacio" style="padding:10px">Nada en este filtro.</div>'; return; }
+    alguna = true;
+    html += lista.map(function (t) {
+      return '<div class="tarea' + (t.hecho ? ' hecha' : '') + '" style="--c:' + esc(g.color) + '" data-t="' + esc(t.id) + '">' +
+        '<button class="check" aria-label="' + (t.hecho ? 'Desmarcar: ' : 'Marcar como cumplida: ') + esc(t.titulo) + '" aria-pressed="' + t.hecho + '"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>' +
+        '<div class="t-cuerpo"><p class="t-tit">' + esc(t.titulo) + '</p>' + (t.descripcion ? '<p class="t-desc">' + esc(t.descripcion) + '</p>' : '') +
+        '<div class="t-meta">' + chipFecha(t, d.hoy) + (t.hecho && t.marcadoPor && t.tipo === 'COMISION' ? '<span class="etiqueta">por ' + esc(t.marcadoPor) + '</span>' : '') + (t.hecho && t.fechaMarcado ? '<span class="etiqueta">' + esc(t.fechaMarcado) + '</span>' : '') + '</div></div></div>';
+    }).join('');
+  });
+  if (!d.tareas.length) html += '<div class="tarjeta vacio">Aún no tienes responsabilidades asignadas.</div>';
+  $('contenido').innerHTML = '<div class="seccion">' + html + '</div>';
+  document.querySelectorAll('[data-f]').forEach(function (b) { b.addEventListener('click', function () { estado.filtro = b.getAttribute('data-f'); pintarTareas(estado.datos); }); });
+  document.querySelectorAll('.tarea .check').forEach(function (b) { b.addEventListener('click', function () { alternar(b.closest('.tarea').getAttribute('data-t')); }); });
+}
+function alternar(id) {
+  var d = estado.datos; if (estado.cargandoMarcar[id]) return;
+  var t = d.tareas.filter(function (x) { return x.id === id; })[0]; if (!t) return;
+  var nuevo = !t.hecho, antesPct = d.progreso.porcentaje;
+  var copia = JSON.parse(JSON.stringify({ tareas: d.tareas, progreso: d.progreso }));
+  t.hecho = nuevo; t.marcadoPor = nuevo ? d.usuario.nombre : ''; t.fechaMarcado = ''; t.vencida = !nuevo && t.fecha && t.fecha < d.hoy;
+  var h = d.tareas.filter(function (x) { return x.hecho; }).length;
+  d.progreso = { hechas: h, total: d.tareas.length, porcentaje: d.tareas.length ? Math.round(h * 100 / d.tareas.length) : 0, vencidas: d.tareas.filter(function (x) { return x.vencida; }).length };
+  estado.cargandoMarcar[id] = true;
+  pintarTareas(d);
+  if (nuevo && d.progreso.porcentaje === 100 && antesPct < 100) confeti();
+  api('marcar', { tareaId: id, hecho: nuevo }).then(function (r) {
+    d.tareas = r.tareas; d.progreso = r.progreso;
+    if (estado.seccion === 'tareas') pintarTareas(d);
+    tostada(nuevo ? '¡Bien! Tarea marcada como cumplida ✅' : 'Tarea marcada como pendiente');
+  }).catch(function (e) {
+    d.tareas = copia.tareas; d.progreso = copia.progreso; if (estado.seccion === 'tareas') pintarTareas(d); tostada(e.message, true);
+  }).then(function () { delete estado.cargandoMarcar[id]; });
+}
+
+/* ---------- DOCUMENTOS ---------- */
+function pintarDocumentos(d) {
+  var colores = { 'Planeación': '#6C3CE1', 'Cartas': '#E83E8C', 'Presentación': '#FF8A00', 'Difusión': '#0EA5E9', 'Logística': '#00A88F' };
+  var iconos = { 'Planeación': '🗂️', 'Cartas': '✉️', 'Presentación': '🎤', 'Difusión': '📣', 'Logística': '📋' };
+  var html = '<div class="tarjeta"><h2>📁 Documentos del evento</h2><p class="sub">Descarga los formatos y modelos. Se abren en Google Drive; desde ahí puedes descargarlos o hacer una copia.</p>';
+  if (!d.documentos.length) html += '<div class="vacio">Todavía no hay documentos publicados.</div>';
+  html += '<div class="docs">' + d.documentos.map(function (doc) {
+    var c = colores[doc.categoria] || '#1B2A6B', link = enlaceSeguro(doc.enlace);
+    return '<div class="doc" style="--c:' + c + '"><div style="display:flex;gap:10px;align-items:center"><div class="doc-icono">' + (iconos[doc.categoria] || '📄') + '</div><small style="font-weight:700;color:' + c + '">' + esc(doc.categoria || 'Documento') + '</small></div><h3>' + esc(doc.titulo) + '</h3><p>' + esc(doc.descripcion) + '</p>' +
+      (link ? '<a class="boton pequeno" href="' + esc(link) + '" target="_blank" rel="noopener noreferrer">⬇ Abrir / descargar</a>' : '<span class="no-disp">⏳ Disponible pronto</span>') + '</div>';
+  }).join('') + '</div></div>';
+  $('contenido').innerHTML = '<div class="seccion">' + html + '</div>';
+}
+
+/* ---------- MURO ---------- */
+function pintarMuro(d) {
+  var avisos = d.mensajes.filter(function (m) { return m.aviso; }).slice(-3).reverse();
+  var html = '<div class="tarjeta muro">';
+  if (avisos.length) html += '<div class="avisos-fijos">' + avisos.map(function (m) { return '<div class="aviso">📌 <b>' + esc(m.nombre) + '</b> · <small>' + esc(m.fecha) + '</small><div class="texto" style="white-space:pre-wrap">' + enlazar(m.texto) + '</div></div>'; }).join('') + '</div>';
+  html += '<div class="mensajes" id="listaMsg" aria-live="polite">' + mensajesHTML(d) + '</div>';
+  if (equipo()) html += '<label class="opcion-aviso" style="padding-top:10px"><input type="checkbox" id="chkAviso"> Publicar como aviso destacado (queda fijo arriba)</label>';
+  html += '<form class="redactar" id="formMsg"><textarea id="txtMsg" rows="1" maxlength="1000" placeholder="Escribe un mensaje para todo el grupo…" aria-label="Mensaje"></textarea><button class="boton" id="btnEnviar" type="submit" aria-label="Enviar">➤</button></form></div>';
+  $('contenido').innerHTML = '<div class="seccion">' + html + '</div>';
+  bajarMensajes();
+  var ta = $('txtMsg');
+  ta.addEventListener('input', function () { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 140) + 'px'; });
+  ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 700) { e.preventDefault(); $('formMsg').requestSubmit(); } });
+  $('formMsg').addEventListener('submit', function (ev) {
+    ev.preventDefault(); var texto = ta.value.trim(); if (!texto) return;
+    var b = $('btnEnviar'); b.disabled = true;
+    api('publicar', { texto: texto, aviso: $('chkAviso') ? $('chkAviso').checked : false }).then(function (r) {
+      ta.value = ''; ta.style.height = 'auto'; estado.datos.mensajes = r.mensajes; pintarMuro(estado.datos); $('txtMsg').focus();
+    }).catch(function (e) { tostada(e.message, true); }).then(function () { if ($('btnEnviar')) $('btnEnviar').disabled = false; });
+  });
+  enlazarBorrar();
+}
+function mensajesHTML(d) {
+  if (!d.mensajes.length) return '<div class="vacio">Aún no hay mensajes. ¡Escribe el primero!</div>';
+  return d.mensajes.map(function (m) {
+    var mio = m.cedula === d.usuario.cedula, puede = mio || equipo();
+    return '<div class="msg' + (mio ? ' mio' : '') + (m.aviso ? ' es-aviso' : '') + '"><div class="autor">' + (m.aviso ? '📌 ' : '') + esc(mio ? 'Tú' : m.nombre) + (m.rol && m.rol !== 'ESTUDIANTE' ? ' <span class="rol ' + esc(m.rol) + '">' + (m.rol === 'DOCENTE' ? 'Docente' : 'Coordinación') + '</span>' : '') + '</div>' +
+      '<div class="texto">' + enlazar(m.texto) + '</div><div class="pie"><span>' + esc(m.fecha) + '</span>' + (puede ? '<button class="borrar" data-borrar="' + esc(m.id) + '">borrar</button>' : '') + '</div></div>';
+  }).join('');
+}
+function enlazarBorrar() {
+  document.querySelectorAll('[data-borrar]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (!confirm('¿Borrar este mensaje?')) return;
+      api('borrarMensaje', { id: b.getAttribute('data-borrar') }).then(function (r) { estado.datos.mensajes = r.mensajes; pintarMuro(estado.datos); }).catch(function (e) { tostada(e.message, true); });
+    });
+  });
+}
+function bajarMensajes() { var l = $('listaMsg'); if (l) l.scrollTop = l.scrollHeight; }
+function ultimoId() { var m = estado.datos && estado.datos.mensajes; return m && m.length ? m[m.length - 1].id : ''; }
+function marcarMuroVisto() { var d = estado.datos; if (d) guardar('encuentro_visto_' + d.usuario.cedula, String(d.mensajes.length ? ultimoId() : '')); actualizarGlobo(); }
+function actualizarGlobo() {
+  var d = estado.datos; if (!d) return;
+  var visto = leer('encuentro_visto_' + d.usuario.cedula), n = 0;
+  if (estado.seccion !== 'muro') {
+    var idx = -1; d.mensajes.forEach(function (m, i) { if (m.id === visto) idx = i; });
+    n = d.mensajes.slice(idx + 1).filter(function (m) { return m.cedula !== d.usuario.cedula; }).length;
+    if (visto === null) n = Math.min(n, 9);
+  }
+  document.querySelectorAll('[data-globo]').forEach(function (g) { g.textContent = n > 9 ? '9+' : n; g.classList.toggle('oculto', !n); });
+}
+function iniciarSondeo() {
+  detenerSondeo();
+  estado.sondeo = setInterval(function () {
+    if (document.hidden || !estado.datos || !estado.token) return;
+    api('mensajes').then(function (r) {
+      var antes = ultimoId(); estado.datos.mensajes = r.mensajes;
+      if (ultimoId() !== antes) {
+        if (estado.seccion === 'muro') {
+          var l = $('listaMsg'), abajo = l && (l.scrollHeight - l.scrollTop - l.clientHeight < 80);
+          if (l) { l.innerHTML = mensajesHTML(estado.datos); enlazarBorrar(); if (abajo) bajarMensajes(); }
+          marcarMuroVisto();
+        } else actualizarGlobo();
+      }
+    }).catch(function () { });
+  }, 20000);
+}
+function detenerSondeo() { if (estado.sondeo) clearInterval(estado.sondeo); estado.sondeo = null; }
+
+/* ---------- SEGUIMIENTO (docente y coordinación) ---------- */
+function colorPct(p) { return p >= 100 ? '#16A34A' : p >= 75 ? '#00C2A8' : p >= 50 ? '#FFC93C' : p >= 25 ? '#FF8A00' : '#EF4444'; }
+function miniBarra(p) { return '<div class="mini-barra"><div class="p"><div style="width:' + p + '%;background:' + colorPct(p) + '"></div></div><b>' + p + ' %</b></div>'; }
+function pintarSeguimiento(d) {
+  var t = d.tablero;
+  var html = '<div class="kpis">' +
+    '<div class="kpi" style="--c:#6C3CE1"><b>' + t.general + ' %</b><small>Avance promedio del grupo</small></div>' +
+    '<div class="kpi" style="--c:#16A34A"><b>' + t.completos + '/' + t.estudiantes.length + '</b><small>Estudiantes al 100 %</small></div>' +
+    '<div class="kpi" style="--c:#EF4444"><b>' + t.vencidas + '</b><small>Tareas vencidas sin cumplir</small></div>' +
+    '<div class="kpi" style="--c:#FF8A00"><b>' + t.sinIngresar + '</b><small>Estudiantes que no han ingresado</small></div></div>';
+  html += '<div class="tarjeta"><h2>Avance por comisión</h2><p class="sub">Promedio de cumplimiento de los integrantes de cada comisión.</p><div class="comisiones-g">' + t.comisiones.map(function (c) {
+    return '<div class="com" style="--c:' + esc(c.color) + '"><div style="display:flex;justify-content:space-between"><b>' + c.numero + '. ' + esc(c.nombre) + '</b><b style="color:' + esc(c.color) + '">' + c.porcentaje + ' %</b></div><div class="mini"><div style="width:' + c.porcentaje + '%"></div></div><small>' + esc(c.miembros.join(' · ')) + '</small></div>';
+  }).join('') + '</div></div>';
+  html += '<div class="tarjeta"><h2>Estudiantes</h2><p class="sub">Toca un estudiante para ver el detalle de sus responsabilidades.</p><div class="herramientas"><input id="buscar" type="search" placeholder="Buscar por nombre o empresa…" value="' + esc(estado.busqueda) + '"><select id="selCom"><option value="0">Todas las comisiones</option>' +
+    t.comisiones.map(function (c) { return '<option value="' + c.numero + '"' + (String(c.numero) === estado.filtroCom ? ' selected' : '') + '>' + esc(c.nombre) + '</option>'; }).join('') + '</select><button class="boton pequeno claro" id="btnCsv">⬇ Exportar a Excel (CSV)</button></div>' +
+    '<table class="tabla-est"><thead><tr><th>Estudiante</th><th>Comisión</th><th>Cumplimiento</th><th>Vencidas</th><th>Último ingreso</th></tr></thead><tbody id="cuerpoEst"></tbody></table></div>';
+  html += '<div class="tarjeta"><h2>Cumplimiento por tarea</h2><p class="sub">Cuántos estudiantes tienen cada responsabilidad cumplida (en las de comisión cuenta el equipo).</p><ul class="lista-tareas-stat">' + t.tareas.map(function (x) {
+    var p = x.total ? Math.round(x.hechas * 100 / x.total) : 0, venc = x.fecha && x.fecha < t.hoy && p < 100;
+    return '<li><span class="tt">' + esc(x.titulo) + '<br><small style="color:var(--suave)">' + (x.tipo === 'INDIVIDUAL' ? 'Personal' : x.tipo === 'LIDER' ? 'Líderes' : 'Comisión ' + x.comision) + ' · ' + esc(fecha(x.fecha)) + (venc ? ' · <b style="color:#B91C1C">vencida</b>' : '') + '</small></span><span style="font-weight:700;font-size:13px">' + x.hechas + '/' + x.total + '</span>' + miniBarra(p) + '</li>';
+  }).join('') + '</ul></div>';
+  $('contenido').innerHTML = '<div class="seccion">' + html + '</div>';
+  filasEstudiantes();
+  $('buscar').addEventListener('input', function () { estado.busqueda = this.value; filasEstudiantes(); });
+  $('selCom').addEventListener('change', function () { estado.filtroCom = this.value; filasEstudiantes(); });
+  $('btnCsv').addEventListener('click', exportarCsv);
+}
+function estudiantesFiltrados() {
+  var q = estado.busqueda.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return estado.datos.tablero.estudiantes.filter(function (e) {
+    var txt = (e.nombre + ' ' + e.empresa).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    return (estado.filtroCom === '0' || String(e.comision) === estado.filtroCom) && (!q || txt.indexOf(q) >= 0);
+  });
+}
+function filasEstudiantes() {
+  var lista = estudiantesFiltrados();
+  $('cuerpoEst').innerHTML = lista.length ? lista.map(function (e) {
+    return '<tr class="fila" tabindex="0" data-ced="' + esc(e.cedula) + '"><td><b>' + esc(e.nombre) + '</b>' + (e.lider ? ' ⭐' : '') + (e.empresa ? '<br><small style="color:var(--suave)">' + esc(e.empresa) + '</small>' : '') + '</td>' +
+      '<td class="c-com"><span class="pildora" style="background:' + esc(e.comisionColor || '#888') + '">' + esc(e.comisionNombre || '—') + '</span></td>' +
+      '<td class="c-barra">' + miniBarra(e.porcentaje) + '</td><td class="c-venc" title="Vencidas">' + (e.vencidas ? '<span class="etiqueta vencida">' + e.vencidas + '</span>' : '<span class="etiqueta lista">0</span>') + '</td>' +
+      '<td class="c-ing">' + (e.activo ? esc(e.ultimoIngreso || '—') : '<span style="color:#B91C1C;font-weight:700">No ha ingresado</span>') + '</td></tr>';
+  }).join('') : '<tr><td colspan="5" class="vacio">Sin resultados.</td></tr>';
+  document.querySelectorAll('tr.fila').forEach(function (tr) {
+    var abrir = function () { detalleEstudiante(tr.getAttribute('data-ced')); };
+    tr.addEventListener('click', abrir); tr.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') abrir(); });
+  });
+}
+function detalleEstudiante(ced) {
+  var d = estado.datos, e = d.tablero.estudiantes.filter(function (x) { return x.cedula === ced; })[0]; if (!e) return;
+  var velo = document.createElement('div'); velo.className = 'velo';
+  velo.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-label="Detalle de ' + esc(e.nombre) + '"><button class="boton pequeno claro cerrar" data-cerrar>Cerrar ✕</button><h3>' + esc(e.nombre) + (e.lider ? ' ⭐' : '') + '</h3><p class="sub" style="color:var(--suave);margin:0 0 12px">' + esc(e.comisionNombre ? 'Comisión de ' + e.comisionNombre : '') + (e.empresa ? ' · ' + esc(e.empresa) : '') + '</p>' +
+    barraHTML({ porcentaje: e.porcentaje, hechas: e.hechas, total: e.total, vencidas: e.vencidas }).replace('Mi cumplimiento', 'Cumplimiento') +
+    '<div style="margin-top:14px">' + e.tareas.map(function (t) {
+      return '<div class="tarea' + (t.hecho ? ' hecha' : '') + '" style="--c:' + (t.tipo === 'COMISION' ? esc(e.comisionColor) : t.tipo === 'LIDER' ? '#FF8A00' : '#6C3CE1') + ';padding:10px 12px"><div class="check" style="width:26px;height:26px"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div class="t-cuerpo"><p class="t-tit" style="font-size:14.5px">' + esc(t.titulo) + '</p><div class="t-meta">' + chipFecha(t, d.hoy) + (t.hecho && t.marcadoPor ? '<span class="etiqueta">por ' + esc(t.marcadoPor) + (t.fechaMarcado ? ' · ' + esc(t.fechaMarcado) : '') + '</span>' : '') + '</div></div></div>';
+    }).join('') + '</div></div>';
+  document.body.appendChild(velo);
+  var cerrar = function () { velo.remove(); document.removeEventListener('keydown', esc_); };
+  var esc_ = function (ev) { if (ev.key === 'Escape') cerrar(); };
+  velo.addEventListener('click', function (ev) { if (ev.target === velo || ev.target.hasAttribute('data-cerrar')) cerrar(); });
+  document.addEventListener('keydown', esc_);
+  velo.querySelector('[data-cerrar]').focus();
+}
+function exportarCsv() {
+  var t = estado.datos.tablero, ids = t.tareas.map(function (x) { return x.id; });
+  var cab = ['Estudiante', 'Comisión', 'Líder', 'Empresa', 'Cumplimiento %', 'Cumplidas', 'Total', 'Vencidas', 'Último ingreso'].concat(t.tareas.map(function (x) { return x.titulo; }));
+  var filas = t.estudiantes.map(function (e) {
+    var m = {}; e.tareas.forEach(function (x) { m[x.id] = x.hecho ? 'Sí' : (x.vencida ? 'Vencida' : 'No'); });
+    return [e.nombre, e.comisionNombre, e.lider ? 'Sí' : 'No', e.empresa, e.porcentaje, e.hechas, e.total, e.vencidas, e.activo ? e.ultimoIngreso : 'No ha ingresado'].concat(ids.map(function (i) { return m[i] || 'N/A'; }));
+  });
+  var csv = [cab].concat(filas).map(function (f) { return f.map(function (v) { v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }).join(';'); }).join('\r\n');
+  var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'seguimiento_III_Encuentro_' + t.hoy + '.csv'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+/* ---------- confeti al llegar al 100 % ---------- */
+function confeti() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var c = $('confeti'), ctx = c.getContext('2d'); c.classList.remove('oculto');
+  c.width = innerWidth; c.height = innerHeight;
+  var colores = ['#6C3CE1', '#E83E8C', '#FF8A00', '#FFC93C', '#00C2A8', '#1B2A6B'];
+  var p = []; for (var i = 0; i < 160; i++) p.push({ x: Math.random() * c.width, y: -20 - Math.random() * c.height * .5, r: 4 + Math.random() * 6, c: colores[i % 6], vy: 2 + Math.random() * 4, vx: -2 + Math.random() * 4, a: Math.random() * 6, va: -.2 + Math.random() * .4 });
+  var t0 = Date.now();
+  (function cuadro() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    p.forEach(function (q) { q.x += q.vx; q.y += q.vy; q.a += q.va; ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.a); ctx.fillStyle = q.c; ctx.fillRect(-q.r / 2, -q.r / 2, q.r, q.r * 1.6); ctx.restore(); });
+    if (Date.now() - t0 < 3200) requestAnimationFrame(cuadro); else { ctx.clearRect(0, 0, c.width, c.height); c.classList.add('oculto'); }
+  })();
+}
+
+/* ---------- inicio ---------- */
+$('ayudaDemo').classList.toggle('oculto', !DEMO);
+document.addEventListener('visibilitychange', function () { if (!document.hidden && estado.datos && estado.seccion === 'muro') { /* el sondeo actualiza */ } });
+if (estado.token) iniciarApp(); else mostrar('pIngreso');
+})();
+</script>
+</body>
+</html>
