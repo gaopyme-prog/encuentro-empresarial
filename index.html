@@ -695,8 +695,22 @@ function detalleEstudiante(ced) {
     barraHTML({ porcentaje: e.porcentaje, hechas: e.hechas, total: e.total, vencidas: e.vencidas }).replace('Mi cumplimiento', 'Cumplimiento') +
     '<div style="margin-top:14px">' + e.tareas.map(function (t) {
       return '<div class="tarea' + (t.hecho ? ' hecha' : '') + '" style="--c:' + (t.tipo === 'COMISION' ? esc(e.comisionColor) : t.tipo === 'LIDER' ? '#FF8A00' : '#6C3CE1') + ';padding:10px 12px"><div class="check" style="width:26px;height:26px"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div class="t-cuerpo"><p class="t-tit" style="font-size:14.5px">' + esc(t.titulo) + '</p><div class="t-meta">' + chipFecha(t, d.hoy) + (t.hecho && t.marcadoPor ? '<span class="etiqueta">por ' + esc(t.marcadoPor) + (t.fechaMarcado ? ' · ' + esc(t.fechaMarcado) : '') + '</span>' : '') + '</div></div></div>';
-    }).join('') + '</div></div>';
+    }).join('') + '</div>' +
+    (d.usuario.rol === 'DOCENTE' ? '<div id="zonaClave" style="margin-top:16px;padding-top:14px;border-top:1px dashed #ccc"><button class="boton pequeno claro" id="btnRestablecer">🔑 Restablecer clave</button><p class="sub" style="color:var(--suave);margin:6px 0 0;font-size:13px">Genera una clave temporal de un solo uso. El estudiante deberá cambiarla al ingresar.</p></div>' : '') + '</div>';
   document.body.appendChild(velo);
+  var br = velo.querySelector('#btnRestablecer');
+  if (br) br.addEventListener('click', function () {
+    if (!confirm('¿Generar una clave temporal para ' + e.nombre + '? Su clave actual dejará de funcionar.')) return;
+    br.disabled = true;
+    api('restablecerClave', { cedula: ced }).then(function (r) {
+      var z = velo.querySelector('#zonaClave');
+      z.innerHTML = '<p style="margin:0 0 6px"><b>Clave temporal de ' + esc(r.nombre) + ':</b></p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><code id="claveTemp" style="font-size:22px;letter-spacing:2px;background:#FFF4D6;padding:6px 12px;border-radius:8px">' + esc(r.temporal) + '</code><button class="boton pequeno" id="btnCopiar">Copiar</button></div><p class="sub" style="color:var(--suave);margin:8px 0 0;font-size:13px">Envíasela por privado (WhatsApp directo). Esta clave no se vuelve a mostrar.</p>';
+      z.querySelector('#btnCopiar').addEventListener('click', function () {
+        try { navigator.clipboard.writeText(r.temporal); } catch (x) {}
+        this.textContent = 'Copiada ✓';
+      });
+    }).catch(function (err) { br.disabled = false; tostada(err.message, true); });
+  });
   var cerrar = function () { velo.remove(); document.removeEventListener('keydown', esc_); };
   var esc_ = function (ev) { if (ev.key === 'Escape') cerrar(); };
   velo.addEventListener('click', function (ev) { if (ev.target === velo || ev.target.hasAttribute('data-cerrar')) cerrar(); });
