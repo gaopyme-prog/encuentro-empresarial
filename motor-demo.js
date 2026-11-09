@@ -11,17 +11,18 @@ var MotorDemo = (function () {
 
 var HOJAS = {
   CONFIG: 'Config', USUARIOS: 'Usuarios', COMISIONES: 'Comisiones', TAREAS: 'Tareas',
-  AVANCE: 'Avance', MENSAJES: 'Mensajes', DOCUMENTOS: 'Documentos'
+  AVANCE: 'Avance', MENSAJES: 'Mensajes', DOCUMENTOS: 'Documentos', REGISTRO: 'Registro'
 };
 
 var COLUMNAS = {
   Config: ['clave', 'valor', 'nota'],
-  Usuarios: ['cedula', 'nombre', 'rol', 'comision', 'lider', 'empresa', 'clave_hash', 'cambiar_clave', 'ultimo_ingreso'],
+  Usuarios: ['cedula', 'nombre', 'rol', 'comision', 'lider', 'empresa', 'clave_hash', 'cambiar_clave', 'ultimo_ingreso', 'celular'],
   Comisiones: ['numero', 'nombre', 'color'],
   Tareas: ['id', 'tipo', 'comision', 'titulo', 'descripcion', 'fecha_limite', 'orden', 'activa'],
   Avance: ['tarea_id', 'ambito', 'marcado_por', 'nombre', 'fecha'],
   Mensajes: ['id', 'fecha', 'cedula', 'nombre', 'rol', 'texto', 'aviso', 'oculto'],
-  Documentos: ['orden', 'titulo', 'descripcion', 'enlace', 'categoria']
+  Documentos: ['orden', 'titulo', 'descripcion', 'enlace', 'categoria'],
+  Registro: ['fecha', 'cedula', 'nombre', 'rol', 'resultado']
 };
 
 var ROLES_EQUIPO = ['DOCENTE', 'COORDINADOR'];
@@ -173,6 +174,7 @@ function construirTablero() {
     var pub = usuarioPublico(u, comis);
     pub.hechas = r.hechas; pub.total = r.total; pub.porcentaje = r.porcentaje; pub.vencidas = r.vencidas;
     pub.ultimoIngreso = s(u.ultimo_ingreso);
+    pub.celular = s(u.celular).replace(/\D/g, '');
     pub.activo = !!s(u.clave_hash);
     pub.tareas = lista;
     estudiantes.push(pub);
@@ -206,6 +208,13 @@ function construirTablero() {
 }
 
 /* ---------- acciones ---------- */
+/* Bitácora de ingresos: nunca debe impedir que alguien entre */
+function registrarIngreso(u, resultado) {
+  try {
+    BD.agregar(HOJAS.REGISTRO, { fecha: PLAT.ahoraTexto(), cedula: limpiarCedula(u.cedula), nombre: s(u.nombre), rol: s(u.rol), resultado: resultado });
+  } catch (e) { }
+}
+
 function accionLogin(p) {
   var ced = limpiarCedula(p.cedula);
   if (!/^\d{5,12}$/.test(ced)) falla('Escribe tu número de cédula, solo números.');
@@ -220,11 +229,13 @@ function accionLogin(p) {
     else ok = hashClave(ced, clave) === s(u.clave_hash);
   }
   if (!ok) {
+    if (u) registrarIngreso(u, 'CLAVE INCORRECTA');
     PLAT.cachePut(llave, String(intentos + 1), 900);
     falla(u ? 'La clave no es correcta.' : 'Esa cédula no está registrada. Habla con el docente.');
   }
   PLAT.cachePut(llave, '0', 1);
   BD.actualizar(HOJAS.USUARIOS, u._fila, { ultimo_ingreso: PLAT.ahoraTexto() });
+  registrarIngreso(u, 'INGRESO');
   return { token: crearToken(ced), debeCambiar: !s(u.clave_hash) || siNo(u.cambiar_clave), nombre: s(u.nombre) };
 }
 
@@ -347,6 +358,21 @@ function accionRestablecer(p) {
   });
 }
 
+function accionGuardarCelular(p) {
+  return PLAT.conBloqueo(function () {
+    var u = usuarioSesion(p);
+    if (ROLES_EQUIPO.indexOf(s(u.rol).toUpperCase()) < 0) falla('Solo el docente o la coordinación pueden guardar celulares.');
+    var x = buscarUsuario(limpiarCedula(p.cedula));
+    if (!x || s(x.rol).toUpperCase() !== 'ESTUDIANTE') falla('Ese estudiante no está registrado.');
+    var n = s(p.celular).replace(/\D/g, '');
+    if (n === '') { BD.actualizar(HOJAS.USUARIOS, x._fila, { celular: '' }); return { celular: '' }; }
+    if (/^3\d{9}$/.test(n)) n = '57' + n;
+    if (!/^573\d{9}$/.test(n)) falla('Escribe un celular colombiano de 10 dígitos, por ejemplo 3001234567.');
+    BD.actualizar(HOJAS.USUARIOS, x._fila, { celular: n });
+    return { celular: n };
+  });
+}
+
 function despachar(p) {
   p = p || {};
   switch (s(p.accion)) {
@@ -358,6 +384,7 @@ function despachar(p) {
     case 'publicar': return accionPublicar(p);
     case 'borrarMensaje': return accionBorrarMensaje(p);
     case 'restablecerClave': return accionRestablecer(p);
+    case 'guardarCelular': return accionGuardarCelular(p);
     default: falla('Acción no reconocida.');
   }
 }
@@ -465,7 +492,8 @@ function datosIniciales(demo) {
     Tareas: tareas,
     Avance: [],
     Mensajes: demo ? mensajes : mensajes.map(function (m) { m.fecha = ''; return m; }),
-    Documentos: docs
+    Documentos: docs,
+    Registro: []
   };
 }
 /* Plataforma de DEMOSTRACIÓN: guarda todo en este navegador (localStorage).
@@ -495,7 +523,7 @@ var BD = {
       var c = {}; for (var k in o) c[k] = o[k]; c._fila = i + 2; return c;
     });
   },
-  agregar: function (nombre, obj) { var h = _cargar().hojas[nombre]; var c = {}; for (var k in obj) c[k] = obj[k]; h.push(c); _guardar(); },
+  agregar: function (nombre, obj) { var m = _cargar(); if (!m.hojas[nombre]) m.hojas[nombre] = []; var h = m.hojas[nombre]; var c = {}; for (var k in obj) c[k] = obj[k]; h.push(c); _guardar(); },
   actualizar: function (nombre, fila, cambios) { var h = _cargar().hojas[nombre]; for (var k in cambios) h[fila - 2][k] = cambios[k]; _guardar(); },
   borrar: function (nombre, fila) { _cargar().hojas[nombre].splice(fila - 2, 1); _guardar(); }
 };

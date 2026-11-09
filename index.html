@@ -251,6 +251,15 @@ main{max-width:1100px;margin:-46px auto 0;padding:0 16px 110px;position:relative
   .pegajosa .pista{height:16px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.wa-msg{width:100%;border:2px solid var(--linea);border-radius:12px;padding:10px 12px;font:14px/1.45 Inter,system-ui,sans-serif;min-height:150px;resize:vertical;outline:none;background:#fff}
+.wa-msg:focus{border-color:var(--violeta)}
+.wa-est{border:2px solid var(--linea);border-radius:16px;padding:14px;margin-bottom:12px;background:#fff}
+.wa-est.enviado{background:#F0FDF4;border-color:#86EFAC}
+.wa-cab{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:8px}
+.wa-cab b{font-size:15px}
+.wa-acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.wa-cel{border:2px solid var(--linea);border-radius:10px;padding:6px 10px;width:150px;outline:none}
+.boton.wa{background:#16A34A;box-shadow:0 8px 20px -8px rgba(22,163,74,.7)}
 </style>
 </head>
 <body>
@@ -412,7 +421,7 @@ function cargar(avisar) {
 /* ---------- navegación ---------- */
 function secciones() {
   if (equipo()) return [
-    { id: 'seguimiento', txt: 'Seguimiento', ico: '📊' }, { id: 'inicio', txt: 'Inicio', ico: '🏠' },
+    { id: 'seguimiento', txt: 'Seguimiento', ico: '📊' }, { id: 'whatsapp', txt: 'WhatsApp', ico: '📲' }, { id: 'inicio', txt: 'Inicio', ico: '🏠' },
     { id: 'documentos', txt: 'Documentos', ico: '📁' }, { id: 'muro', txt: 'Muro', ico: '💬' }];
   return [
     { id: 'inicio', txt: 'Inicio', ico: '🏠' }, { id: 'tareas', txt: 'Mis tareas', ico: '✅' },
@@ -434,7 +443,7 @@ function ir(id) {
 }
 function pintar() {
   var d = estado.datos; if (!d) return;
-  var f = { inicio: pintarInicio, tareas: pintarTareas, documentos: pintarDocumentos, muro: pintarMuro, seguimiento: pintarSeguimiento }[estado.seccion] || pintarInicio;
+  var f = { inicio: pintarInicio, tareas: pintarTareas, documentos: pintarDocumentos, muro: pintarMuro, seguimiento: pintarSeguimiento, whatsapp: pintarWhatsapp }[estado.seccion] || pintarInicio;
   document.querySelectorAll('[data-s]').forEach(function (b) { b.setAttribute('aria-selected', b.getAttribute('data-s') === estado.seccion); });
   f(d);
   if (estado.seccion === 'muro') marcarMuroVisto();
@@ -716,6 +725,104 @@ function detalleEstudiante(ced) {
   velo.addEventListener('click', function (ev) { if (ev.target === velo || ev.target.hasAttribute('data-cerrar')) cerrar(); });
   document.addEventListener('keydown', esc_);
   velo.querySelector('[data-cerrar]').focus();
+}
+
+/* ---------- módulo de mensajes de WhatsApp (docente y coordinación) ---------- */
+var LLAVE_ENV = 'encuentro_wa_enviados';
+function enviadosHoy() { try { var o = JSON.parse(localStorage.getItem(LLAVE_ENV) || '{}'); return o.dia === estado.datos.tablero.hoy ? o.lista : {}; } catch (e) { return {}; } }
+function marcarEnviado(ced, si) {
+  var l = enviadosHoy(); if (si) l[ced] = 1; else delete l[ced];
+  try { localStorage.setItem(LLAVE_ENV, JSON.stringify({ dia: estado.datos.tablero.hoy, lista: l })); } catch (e) { }
+}
+function sumarDias(f, n) { var d = new Date(f + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function enlaceApp() { return location.origin + location.pathname.replace(/index\.html$/, ''); }
+function fechaCorta(f) { return new Date(f + 'T12:00:00Z').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }); }
+function nombreTarea(t) { return t.titulo + (t.tipo === 'COMISION' ? ' (tarea de tu comisión)' : ''); }
+function mensajeEstudiante(e, hoy) {
+  var p = primerNombre(e.nombre);
+  var pend = e.tareas.filter(function (t) { return !t.hecho; });
+  var ven = pend.filter(function (t) { return t.fecha && t.fecha < hoy; });
+  var hoyL = pend.filter(function (t) { return t.fecha === hoy; });
+  var prox = pend.filter(function (t) { return t.fecha && t.fecha > hoy && t.fecha <= sumarDias(hoy, 2); });
+  var m = 'Hola ' + p + ' 👋 Te escribo del Consultorio Empresarial para recordarte cómo vas con el *III Encuentro Empresarial* (miércoles 18 de noviembre, 8:00 a. m., auditorio del 4.º piso).\n\n';
+  if (!e.activo) m += 'Aún no has ingresado a la app. Entra con tu cédula y la clave inicial que te compartí; te pedirá crear una propia:\n' + enlaceApp() + '\n\n';
+  if (!ven.length && !hoyL.length && !prox.length) {
+    m += '✅ Vas al día con tus tareas, ¡excelente! Revisa la app por si aparece algo nuevo.\n\n';
+  } else {
+    if (ven.length) m += '⚠️ *Pendiente (ya venció):*\n' + ven.map(function (t) { return '• ' + nombreTarea(t) + ' (venció el ' + fechaCorta(t.fecha) + ')'; }).join('\n') + '\n\n';
+    if (hoyL.length) m += '📌 *Para hoy:*\n' + hoyL.map(function (t) { return '• ' + nombreTarea(t); }).join('\n') + '\n\n';
+    if (prox.length) m += '🗓️ *Próximos días:*\n' + prox.map(function (t) { return '• ' + nombreTarea(t) + ' (' + fechaCorta(t.fecha) + ')'; }).join('\n') + '\n\n';
+    m += 'Marca en la app lo que ya tengas hecho. Si algo se te complica, escríbeme hoy y lo resolvemos.\n';
+  }
+  m += 'Este evento es tu vitrina frente a empresarios reales. Vamos a hacer que sea espectacular 💪';
+  return m;
+}
+function mensajeGeneral(t) {
+  var prox = t.tareas.filter(function (x) { return x.tipo === 'INDIVIDUAL' && x.fecha >= t.hoy && x.hechas < x.total; }).sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; }).slice(0, 5);
+  return 'Buenos días, equipo 👋 Les recuerdo que el *III Encuentro Empresarial* es el miércoles 18 de noviembre, 8:00 a. m., en el auditorio del 4.º piso.\n\n' +
+    (prox.length ? 'Esto es lo que viene:\n' + prox.map(function (x) { return '📌 ' + fechaCorta(x.fecha) + ': ' + x.titulo; }).join('\n') + '\n\n' : '') +
+    'Entren a la app con su cédula, revisen *Mis tareas* y marquen lo que ya hicieron. Lo que no se marca, no se ve.\n👉 ' + enlaceApp() + '\n\n' +
+    'Ese día estarán frente a empresarios reales, presentando lo que ustedes mismos diagnosticaron y propusieron. Eso no se improvisa: se prepara bien y se nota. Hagamos que sea un evento del que hablen. 💪';
+}
+function enlaceWa(cel, msg) { return 'https://wa.me/' + (cel || '') + '?text=' + encodeURIComponent(msg); }
+function copiarTexto(txt, btn) {
+  var listo = function () { if (btn) { var o = btn.textContent; btn.textContent = 'Copiado ✓'; setTimeout(function () { btn.textContent = o; }, 1500); } };
+  try { navigator.clipboard.writeText(txt).then(listo, function () { tostada('No se pudo copiar. Selecciona el texto y cópialo.', true); }); } catch (e) { tostada('No se pudo copiar. Selecciona el texto y cópialo.', true); }
+}
+function pintarWhatsapp(d) {
+  var t = d.tablero;
+  var html = '<div class="tarjeta"><h2>📣 Mensaje general al grupo</h2><p class="sub">Ábrelo en WhatsApp y elige el grupo, o cópialo. Puedes editar el texto antes de enviarlo.</p>' +
+    '<textarea class="wa-msg" id="waGeneral">' + esc(mensajeGeneral(t)) + '</textarea>' +
+    '<div class="wa-acc"><a class="boton wa pequeno" id="waGenAbrir" target="_blank" rel="noopener">Abrir en WhatsApp</a><button class="boton pequeno claro" id="waGenCopiar">Copiar</button></div></div>';
+  html += '<div class="tarjeta"><h2>👤 Mensajes personales</h2><p class="sub">Cada mensaje se arma con los pendientes reales de la persona, según la app. Guarda el celular una vez y el botón abre el chat directo.</p>' +
+    '<div class="herramientas"><input id="waBuscar" type="search" placeholder="Buscar estudiante…" value="' + esc(estado.waBusca || '') + '"><select id="waFiltro">' +
+    [['pend', 'Solo con pendientes'], ['todos', 'Todos'], ['noing', 'Que no han ingresado']].map(function (o) { return '<option value="' + o[0] + '"' + ((estado.waFiltro || 'pend') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
+    '</select></div><div id="waLista"></div></div>';
+  $('contenido').innerHTML = '<div class="seccion">' + html + '</div>';
+  var g = $('waGeneral');
+  var actGen = function () { $('waGenAbrir').href = enlaceWa('', g.value); };
+  actGen(); g.addEventListener('input', actGen);
+  $('waGenCopiar').addEventListener('click', function () { copiarTexto(g.value, this); });
+  $('waBuscar').addEventListener('input', function () { estado.waBusca = this.value; pintarListaWa(); });
+  $('waFiltro').addEventListener('change', function () { estado.waFiltro = this.value; pintarListaWa(); });
+  pintarListaWa();
+}
+function pintarListaWa() {
+  var t = estado.datos.tablero, q = (estado.waBusca || '').toLowerCase(), f = estado.waFiltro || 'pend', env = enviadosHoy();
+  var lista = t.estudiantes.filter(function (e) {
+    if (q && (e.nombre + ' ' + e.empresa).toLowerCase().indexOf(q) < 0) return false;
+    if (f === 'noing') return !e.activo;
+    if (f === 'pend') return e.tareas.some(function (x) { return !x.hecho && x.fecha && x.fecha <= sumarDias(t.hoy, 2); }) || !e.activo;
+    return true;
+  });
+  var cont = $('waLista');
+  if (!lista.length) { cont.innerHTML = '<p class="vacio">No hay estudiantes con ese filtro.</p>'; return; }
+  cont.innerHTML = lista.map(function (e) {
+    return '<div class="wa-est' + (env[e.cedula] ? ' enviado' : '') + '" data-ced="' + esc(e.cedula) + '"><div class="wa-cab"><div><b>' + esc(e.nombre) + (e.lider ? ' ⭐' : '') + '</b><br><small style="color:var(--suave)">' + esc(e.comisionNombre ? 'Comisión de ' + e.comisionNombre : '') + ' · ' + e.porcentaje + ' % · ' + (e.vencidas ? e.vencidas + ' vencida' + (e.vencidas > 1 ? 's' : '') : 'sin vencidas') + (e.activo ? '' : ' · nunca ha ingresado') + '</small></div>' +
+      '<input class="wa-cel" inputmode="tel" placeholder="Celular" value="' + esc(e.celular ? e.celular.replace(/^57/, '') : '') + '" aria-label="Celular de ' + esc(e.nombre) + '"></div>' +
+      '<textarea class="wa-msg" aria-label="Mensaje para ' + esc(e.nombre) + '">' + esc(mensajeEstudiante(e, t.hoy)) + '</textarea>' +
+      '<div class="wa-acc"><a class="boton wa pequeno" data-abrir target="_blank" rel="noopener">' + (e.celular ? 'Abrir chat en WhatsApp' : 'Abrir WhatsApp (elegir contacto)') + '</a><button class="boton pequeno claro" data-copiar>Copiar</button><button class="boton pequeno claro" data-enviado>' + (env[e.cedula] ? '✓ Enviado hoy (deshacer)' : 'Marcar como enviado') + '</button></div></div>';
+  }).join('');
+  cont.querySelectorAll('.wa-est').forEach(function (tarjeta) {
+    var ced = tarjeta.getAttribute('data-ced'), e = t.estudiantes.filter(function (x) { return x.cedula === ced; })[0];
+    var area = tarjeta.querySelector('textarea'), cel = tarjeta.querySelector('.wa-cel'), abrir = tarjeta.querySelector('[data-abrir]');
+    var act = function () { abrir.href = enlaceWa(e.celular, area.value); };
+    act(); area.addEventListener('input', act);
+    tarjeta.querySelector('[data-copiar]').addEventListener('click', function () { copiarTexto(area.value, this); });
+    abrir.addEventListener('click', function () { marcarEnviado(ced, true); tarjeta.classList.add('enviado'); tarjeta.querySelector('[data-enviado]').textContent = '✓ Enviado hoy (deshacer)'; });
+    tarjeta.querySelector('[data-enviado]').addEventListener('click', function () {
+      var ya = tarjeta.classList.contains('enviado'); marcarEnviado(ced, !ya); tarjeta.classList.toggle('enviado', !ya);
+      this.textContent = ya ? 'Marcar como enviado' : '✓ Enviado hoy (deshacer)';
+    });
+    cel.addEventListener('change', function () {
+      var v = cel.value;
+      api('guardarCelular', { cedula: ced, celular: v }).then(function (r) {
+        e.celular = r.celular; cel.value = r.celular ? r.celular.replace(/^57/, '') : ''; act();
+        abrir.textContent = e.celular ? 'Abrir chat en WhatsApp' : 'Abrir WhatsApp (elegir contacto)';
+        tostada(r.celular ? 'Celular guardado' : 'Celular borrado');
+      }).catch(function (err) { tostada(err.message, true); });
+    });
+  });
 }
 function exportarCsv() {
   var t = estado.datos.tablero, ids = t.tareas.map(function (x) { return x.id; });
