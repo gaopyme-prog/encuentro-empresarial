@@ -665,7 +665,7 @@ function pintarSeguimiento(d) {
     return '<div class="com" style="--c:' + esc(c.color) + '"><div style="display:flex;justify-content:space-between"><b>' + c.numero + '. ' + esc(c.nombre) + '</b><b style="color:' + esc(c.color) + '">' + c.porcentaje + ' %</b></div><div class="mini"><div style="width:' + c.porcentaje + '%"></div></div><small>' + esc(c.miembros.join(' · ')) + '</small></div>';
   }).join('') + '</div></div>';
   html += '<div class="tarjeta"><h2>Estudiantes</h2><p class="sub">Toca un estudiante para ver el detalle de sus responsabilidades.</p><div class="herramientas"><input id="buscar" type="search" placeholder="Buscar por nombre o empresa…" value="' + esc(estado.busqueda) + '"><select id="selCom"><option value="0">Todas las comisiones</option>' +
-    t.comisiones.map(function (c) { return '<option value="' + c.numero + '"' + (String(c.numero) === estado.filtroCom ? ' selected' : '') + '>' + esc(c.nombre) + '</option>'; }).join('') + '</select><button class="boton pequeno claro" id="btnCsv">⬇ Exportar a Excel (CSV)</button></div>' +
+    t.comisiones.map(function (c) { return '<option value="' + c.numero + '"' + (String(c.numero) === estado.filtroCom ? ' selected' : '') + '>' + esc(c.nombre) + '</option>'; }).join('') + '</select><button class="boton pequeno claro" id="btnCsv">⬇ Exportar a Excel (CSV)</button><button class="boton pequeno claro" id="btnHist">🕘 Historial de ingresos</button></div>' +
     '<table class="tabla-est"><thead><tr><th>Estudiante</th><th>Comisión</th><th>Cumplimiento</th><th>Vencidas</th><th>Último ingreso</th></tr></thead><tbody id="cuerpoEst"></tbody></table></div>';
   html += '<div class="tarjeta"><h2>Cumplimiento por tarea</h2><p class="sub">Cuántos estudiantes tienen cada responsabilidad cumplida (en las de comisión cuenta el equipo).</p><ul class="lista-tareas-stat">' + t.tareas.map(function (x) {
     var p = x.total ? Math.round(x.hechas * 100 / x.total) : 0, venc = x.fecha && x.fecha < t.hoy && p < 100;
@@ -676,6 +676,7 @@ function pintarSeguimiento(d) {
   $('buscar').addEventListener('input', function () { estado.busqueda = this.value; filasEstudiantes(); });
   $('selCom').addEventListener('change', function () { estado.filtroCom = this.value; filasEstudiantes(); });
   $('btnCsv').addEventListener('click', exportarCsv);
+  $('btnHist').addEventListener('click', abrirHistorial);
 }
 function estudiantesFiltrados() {
   var q = estado.busqueda.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -764,7 +765,12 @@ function mensajeGeneral(t) {
     'Entren a la app con su cédula, revisen *Mis tareas* y marquen lo que ya hicieron. Lo que no se marca, no se ve.\n👉 ' + enlaceApp() + '\n\n' +
     'Ese día estarán frente a empresarios reales, presentando lo que ustedes mismos diagnosticaron y propusieron. Eso no se improvisa: se prepara bien y se nota. Hagamos que sea un evento del que hablen. 💪';
 }
-function enlaceWa(cel, msg) { return 'https://wa.me/' + (cel || '') + '?text=' + encodeURIComponent(msg); }
+function waSinEmoji() { try { return localStorage.getItem('encuentro_wa_sinemoji') !== '0'; } catch (e) { return true; } }
+function sinEmojis(m) { return m.replace(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{FE0F}\u{200D}]/gu, '').replace(/ +\n/g, '\n').replace(/[ ]{2,}/g, ' ').replace(/^ +/gm, '').trim(); }
+function enlaceWa(cel, msg) {
+  if (waSinEmoji()) msg = sinEmojis(msg);
+  return 'https://api.whatsapp.com/send?' + (cel ? 'phone=' + cel + '&' : '') + 'text=' + encodeURIComponent(msg);
+}
 function copiarTexto(txt, btn) {
   var listo = function () { if (btn) { var o = btn.textContent; btn.textContent = 'Copiado ✓'; setTimeout(function () { btn.textContent = o; }, 1500); } };
   try { navigator.clipboard.writeText(txt).then(listo, function () { tostada('No se pudo copiar. Selecciona el texto y cópialo.', true); }); } catch (e) { tostada('No se pudo copiar. Selecciona el texto y cópialo.', true); }
@@ -773,7 +779,8 @@ function pintarWhatsapp(d) {
   var t = d.tablero;
   var html = '<div class="tarjeta"><h2>📣 Mensaje general al grupo</h2><p class="sub">Ábrelo en WhatsApp y elige el grupo, o cópialo. Puedes editar el texto antes de enviarlo.</p>' +
     '<textarea class="wa-msg" id="waGeneral">' + esc(mensajeGeneral(t)) + '</textarea>' +
-    '<div class="wa-acc"><a class="boton wa pequeno" id="waGenAbrir" target="_blank" rel="noopener">Abrir en WhatsApp</a><button class="boton pequeno claro" id="waGenCopiar">Copiar</button></div></div>';
+    '<div class="wa-acc"><a class="boton wa pequeno" id="waGenAbrir" target="_blank" rel="noopener">Abrir en WhatsApp</a><button class="boton pequeno claro" id="waGenCopiar">Copiar</button></div>' +
+    '<label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px;color:var(--suave)"><input type="checkbox" id="waSinEmoji"' + (waSinEmoji() ? ' checked' : '') + '> Abrir sin emoticonos (recomendado: WhatsApp de escritorio en Windows los daña y salen como «?». Con el botón Copiar y pegar sí se conservan)</label></div>';
   html += '<div class="tarjeta"><h2>👤 Mensajes personales</h2><p class="sub">Cada mensaje se arma con los pendientes reales de la persona, según la app. Guarda el celular una vez y el botón abre el chat directo.</p>' +
     '<div class="herramientas"><input id="waBuscar" type="search" placeholder="Buscar estudiante…" value="' + esc(estado.waBusca || '') + '"><select id="waFiltro">' +
     [['pend', 'Solo con pendientes'], ['todos', 'Todos'], ['noing', 'Que no han ingresado']].map(function (o) { return '<option value="' + o[0] + '"' + ((estado.waFiltro || 'pend') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
@@ -782,6 +789,10 @@ function pintarWhatsapp(d) {
   var g = $('waGeneral');
   var actGen = function () { $('waGenAbrir').href = enlaceWa('', g.value); };
   actGen(); g.addEventListener('input', actGen);
+  $('waSinEmoji').addEventListener('change', function () {
+    try { localStorage.setItem('encuentro_wa_sinemoji', this.checked ? '1' : '0'); } catch (e) { }
+    document.querySelectorAll('#waGeneral, #waLista textarea').forEach(function (a) { a.dispatchEvent(new Event('input')); });
+  });
   $('waGenCopiar').addEventListener('click', function () { copiarTexto(g.value, this); });
   $('waBuscar').addEventListener('input', function () { estado.waBusca = this.value; pintarListaWa(); });
   $('waFiltro').addEventListener('change', function () { estado.waFiltro = this.value; pintarListaWa(); });
@@ -823,6 +834,50 @@ function pintarListaWa() {
       }).catch(function (err) { tostada(err.message, true); });
     });
   });
+}
+
+/* ---------- historial de ingresos (docente y coordinación) ---------- */
+function abrirHistorial() {
+  var velo = document.createElement('div'); velo.className = 'velo';
+  velo.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-label="Historial de ingresos"><button class="boton pequeno claro cerrar" data-cerrar>Cerrar ✕</button><h3>🕘 Historial de ingresos</h3><p class="sub" style="color:var(--suave);margin:0 0 12px">Cargando…</p></div>';
+  document.body.appendChild(velo);
+  var cerrar = function () { velo.remove(); document.removeEventListener('keydown', esc_); };
+  var esc_ = function (ev) { if (ev.key === 'Escape') cerrar(); };
+  velo.addEventListener('click', function (ev) { if (ev.target === velo || ev.target.hasAttribute('data-cerrar')) cerrar(); });
+  document.addEventListener('keydown', esc_);
+  api('registro').then(function (r) {
+    var regs = r.registros, est = estado.datos.tablero.estudiantes;
+    var por = {}; regs.forEach(function (x) {
+      var o = por[x.cedula] || (por[x.cedula] = { ok: 0, mal: 0, ultimo: '' });
+      if (x.resultado === 'INGRESO') { o.ok++; if (x.fecha > o.ultimo) o.ultimo = x.fecha; } else o.mal++;
+    });
+    var filas = est.map(function (e) { var o = por[e.cedula] || { ok: 0, mal: 0, ultimo: '' }; return { e: e, ok: o.ok, mal: o.mal, ultimo: o.ultimo || e.ultimoIngreso || '' }; });
+    var nunca = filas.filter(function (f) { return !f.ultimo; }).length, totalOk = regs.filter(function (x) { return x.resultado === 'INGRESO'; }).length;
+    var mal = regs.filter(function (x) { return x.resultado !== 'INGRESO'; }).length;
+    var cuerpo = '<div class="kpis" style="grid-template-columns:repeat(2,1fr);margin-bottom:14px">' +
+      '<div class="kpi" style="--c:#16A34A"><b>' + (est.length - nunca) + '/' + est.length + '</b><small>Estudiantes que han ingresado</small></div>' +
+      '<div class="kpi" style="--c:#FF8A00"><b>' + nunca + '</b><small>Nunca han ingresado</small></div>' +
+      '<div class="kpi" style="--c:#6C3CE1"><b>' + totalOk + '</b><small>Ingresos registrados</small></div>' +
+      '<div class="kpi" style="--c:#EF4444"><b>' + mal + '</b><small>Intentos con clave incorrecta</small></div></div>' +
+      '<p class="sub" style="color:var(--suave);font-size:13px;margin:0 0 12px">El conteo empieza cuando se activó el registro; antes solo se guardaba el último ingreso de cada persona.</p>' +
+      '<h4 style="margin:12px 0 6px">Por estudiante</h4><div style="overflow-x:auto"><table class="tabla-hist" style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr style="text-align:left;color:var(--suave)"><th>Estudiante</th><th>Ingresos</th><th>Fallidos</th><th>Último ingreso</th></tr></thead><tbody>' +
+      filas.sort(function (a, b) { return (a.ultimo ? 1 : 0) - (b.ultimo ? 1 : 0) || (a.ultimo < b.ultimo ? 1 : -1); }).map(function (f) {
+        return '<tr style="border-top:1px solid var(--linea)"><td style="padding:6px 8px 6px 0"><b>' + esc(f.e.nombre) + '</b><br><small style="color:var(--suave)">' + esc(f.e.comisionNombre) + '</small></td><td>' + f.ok + '</td><td' + (f.mal ? ' style="color:#B91C1C;font-weight:700"' : '') + '>' + f.mal + '</td><td>' + (f.ultimo ? esc(f.ultimo) : '<b style="color:#B91C1C">Nunca</b>') + '</td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<h4 style="margin:16px 0 6px">Últimos movimientos</h4><div style="max-height:260px;overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px"><tbody>' +
+      (regs.length ? regs.slice(0, 100).map(function (x) {
+        return '<tr style="border-top:1px solid var(--linea)"><td style="padding:5px 8px 5px 0;white-space:nowrap">' + esc(x.fecha) + '</td><td>' + esc(x.nombre) + (x.rol !== 'ESTUDIANTE' ? ' <small>(' + (x.rol === 'DOCENTE' ? 'docente' : 'coordinación') + ')</small>' : '') + '</td><td style="text-align:right;color:' + (x.resultado === 'INGRESO' ? '#15803D' : '#B91C1C') + ';font-weight:700">' + (x.resultado === 'INGRESO' ? 'Ingresó' : 'Clave incorrecta') + '</td></tr>';
+      }).join('') : '<tr><td class="vacio">Aún no hay movimientos registrados.</td></tr>') + '</tbody></table></div>' +
+      '<div style="margin-top:14px"><button class="boton pequeno claro" id="btnHistCsv">⬇ Exportar historial (CSV)</button></div>';
+    var m = velo.querySelector('.modal'); m.innerHTML = '<button class="boton pequeno claro cerrar" data-cerrar>Cerrar ✕</button><h3>🕘 Historial de ingresos</h3>' + cuerpo;
+    m.querySelector('#btnHistCsv').addEventListener('click', function () {
+      var csv = [['Fecha', 'Cédula', 'Nombre', 'Rol', 'Resultado']].concat(regs.map(function (x) { return [x.fecha, x.cedula, x.nombre, x.rol, x.resultado]; })).map(function (f) {
+        return f.map(function (v) { v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }).join(';');
+      }).join('\r\n');
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+      a.download = 'historial_ingresos_' + estado.datos.tablero.hoy + '.csv'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    });
+  }).catch(function (e) { velo.querySelector('.sub').textContent = e.message; });
 }
 function exportarCsv() {
   var t = estado.datos.tablero, ids = t.tareas.map(function (x) { return x.id; });
