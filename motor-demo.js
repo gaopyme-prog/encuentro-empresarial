@@ -248,6 +248,13 @@ function accionCambiarClave(p) {
   return { listo: true };
 }
 
+/* Avance del grupo y de la comisión del usuario (solo porcentajes, sin datos de otros) */
+function avancesDe(u) {
+  var t = construirTablero(), c = null;
+  t.comisiones.forEach(function (x) { if (x.numero === num(u.comision)) c = x; });
+  return { general: t.general, comision: c ? c.porcentaje : null };
+}
+
 function accionDatos(p) {
   var u = usuarioSesion(p);
   var c = config();
@@ -272,6 +279,7 @@ function accionDatos(p) {
     var lista = tareasDeUsuario(u, tareasActivas(), mapaAvance());
     r.tareas = lista;
     r.progreso = resumen(lista);
+    r.avances = avancesDe(u);
     r.companeros = BD.leer(HOJAS.USUARIOS).filter(function (x) {
       return s(x.rol).toUpperCase() === 'ESTUDIANTE' && num(x.comision) === num(u.comision) && s(x.nombre);
     }).map(function (x) { return { nombre: s(x.nombre), lider: siNo(x.lider) }; });
@@ -295,7 +303,7 @@ function accionMarcar(p) {
       BD.borrar(HOJAS.AVANCE, existente._fila);
     }
     var lista = tareasDeUsuario(u, tareasActivas(), mapaAvance());
-    return { tareas: lista, progreso: resumen(lista) };
+    return { tareas: lista, progreso: resumen(lista), avances: avancesDe(u) };
   });
 }
 
@@ -373,6 +381,18 @@ function accionGuardarCelular(p) {
   });
 }
 
+function accionRegistro(p) {
+  var u = usuarioSesion(p);
+  if (!esEquipo(u)) falla('Solo el docente o la coordinación pueden ver el historial de ingresos.');
+  var filas = [];
+  try { filas = BD.leer(HOJAS.REGISTRO); } catch (e) { filas = []; }
+  return {
+    registros: filas.filter(function (r) { return s(r.fecha); }).map(function (r) {
+      return { fecha: s(r.fecha), cedula: s(r.cedula), nombre: s(r.nombre), rol: s(r.rol), resultado: s(r.resultado) };
+    }).reverse()
+  };
+}
+
 function despachar(p) {
   p = p || {};
   switch (s(p.accion)) {
@@ -385,6 +405,7 @@ function despachar(p) {
     case 'borrarMensaje': return accionBorrarMensaje(p);
     case 'restablecerClave': return accionRestablecer(p);
     case 'guardarCelular': return accionGuardarCelular(p);
+    case 'registro': return accionRegistro(p);
     default: falla('Acción no reconocida.');
   }
 }
